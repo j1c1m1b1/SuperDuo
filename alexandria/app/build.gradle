@@ -1,4 +1,6 @@
 apply plugin: 'com.android.application'
+// This does not break the build when Android Studio is missing the JRebel for Android plugin.
+apply plugin: 'com.zeroturnaround.jrebel.android'
 
 android {
     compileSdkVersion 22
@@ -39,7 +41,9 @@ android {
 }
 
 dependencies {
+    compile 'com.android.support:gridlayout-v7:22.2.1'
     compile 'com.android.support:appcompat-v7:22.2.1'
     compile 'com.android.support:support-v4:22.2.1'
+    compile 'com.android.support:design:22.2.1'
     compile 'com.github.bumptech.glide:glide:3.6.1'
 }

@@ -3,10 +3,10 @@
                                         android:layout_width="match_parent" android:layout_height="match_parent"
                                         tools:context=".MainActivity">
     <LinearLayout
-        android:orientation="horizontal"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
         android:baselineAligned="false"
-        android:layout_width="fill_parent"
-        android:layout_height="fill_parent">
+        android:orientation="horizontal">
 
         <FrameLayout
             android:id="@+id/container"
@@ -32,9 +32,9 @@
          android:layout_gravity="left" instead. -->
     <!-- The drawer is given a fixed width in dp and extends the full height of
          the container. -->
-    <fragment android:id="@+id/navigation_drawer"
-              android:layout_width="@dimen/navigation_drawer_width" android:layout_height="match_parent"
-              android:layout_gravity="start" android:name="it.jaschke.alexandria.NavigationDrawerFragment"
-              tools:layout="@layout/fragment_navigation_drawer" />
+    <!--<fragment android:id="@+id/navigation_drawer"-->
+              <!--android:name="it.jaschke.alexandria.NavigationDrawerFragment" android:layout_width="@dimen/navigation_drawer_width"-->
+              <!--android:layout_height="match_parent" android:layout_gravity="start"-->
+              <!--tools:layout="@layout/fragment_navigation_drawer" />-->
 
 </android.support.v4.widget.DrawerLayout>

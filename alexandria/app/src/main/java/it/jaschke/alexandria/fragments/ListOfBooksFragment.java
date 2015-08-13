@@ -1,35 +1,37 @@
-package it.jaschke.alexandria;
+package it.jaschke.alexandria.fragments;
 
 import android.app.Activity;
+import android.content.Intent;
 import android.database.Cursor;
 import android.os.Bundle;
+import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
-import android.widget.EditText;
 import android.widget.ListView;
 
+import it.jaschke.alexandria.R;
+import it.jaschke.alexandria.activities.AddBookActivity;
 import it.jaschke.alexandria.api.BookListAdapter;
 import it.jaschke.alexandria.api.Callback;
 import it.jaschke.alexandria.data.AlexandriaContract;
 
 
-public class ListOfBooks extends Fragment implements LoaderManager.LoaderCallbacks<Cursor> {
+public class ListOfBooksFragment extends Fragment implements LoaderManager.LoaderCallbacks<Cursor> {
 
+    private static final String QUERY = "query";
+    private static final int LOADER_ID = 10;
     private BookListAdapter bookListAdapter;
-    private ListView bookList;
+
     private int position = ListView.INVALID_POSITION;
-    private EditText searchText;
+    private ListView bookList;
 
-    private final int LOADER_ID = 10;
-
-    public ListOfBooks() {
+    public ListOfBooksFragment() {
     }
 
     @Override
@@ -48,18 +50,8 @@ public class ListOfBooks extends Fragment implements LoaderManager.LoaderCallbac
                 null  // sort order
         );
 
-
         bookListAdapter = new BookListAdapter(getActivity(), cursor, 0);
         View rootView = inflater.inflate(R.layout.fragment_list_of_books, container, false);
-        searchText = (EditText) rootView.findViewById(R.id.searchText);
-        rootView.findViewById(R.id.searchButton).setOnClickListener(
-                new View.OnClickListener() {
-                    @Override
-                    public void onClick(View v) {
-                        ListOfBooks.this.restartLoader();
-                    }
-                }
-        );
 
         bookList = (ListView) rootView.findViewById(R.id.listOfBooks);
         bookList.setAdapter(bookListAdapter);
@@ -70,33 +62,58 @@ public class ListOfBooks extends Fragment implements LoaderManager.LoaderCallbac
             public void onItemClick(AdapterView<?> adapterView, View view, int position, long l) {
                 Cursor cursor = bookListAdapter.getCursor();
                 if (cursor != null && cursor.moveToPosition(position)) {
-                    ((Callback)getActivity())
-                            .onItemSelected(cursor.getString(cursor.getColumnIndex(AlexandriaContract.BookEntry._ID)));
+                    ((Callback) getActivity())
+                            .onItemSelected(cursor.getString(cursor
+                                    .getColumnIndex(AlexandriaContract.BookEntry._ID)));
                 }
+            }
+        });
+
+        bookList.setEmptyView(rootView.findViewById(R.id.emptyView));
+
+        FloatingActionButton fab = (FloatingActionButton) rootView.findViewById(R.id.fab);
+        fab.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+
+                Intent intent = new Intent(getActivity(), AddBookActivity.class);
+                getActivity().startActivity(intent);
             }
         });
 
         return rootView;
     }
 
-    private void restartLoader(){
-        getLoaderManager().restartLoader(LOADER_ID, null, this);
+    public void search(String query)
+    {
+        if(query != null && !query.isEmpty())
+        {
+            Bundle bundle = new Bundle();
+            bundle.putString(QUERY, query);
+            restartLoader(bundle);
+        }
+    }
+
+    private void restartLoader(Bundle bundle){
+        getLoaderManager().restartLoader(LOADER_ID, bundle, this);
     }
 
     @Override
-    public Loader<Cursor> onCreateLoader(int id, Bundle args) {
+    public Loader<Cursor> onCreateLoader(int id, Bundle bundle) {
 
-        final String selection = AlexandriaContract.BookEntry.TITLE +" LIKE ? OR " + AlexandriaContract.BookEntry.SUBTITLE + " LIKE ? ";
-        String searchString =searchText.getText().toString();
+        final String selection = AlexandriaContract.BookEntry.TITLE +" MATCH ? OR " +
+                AlexandriaContract.BookEntry.SUBTITLE + " MATCH ? OR " +
+                AlexandriaContract.BookEntry.SUBTITLE + " MATCH ?";
+        String query = bundle.getString(QUERY);
 
-        if(searchString.length()>0){
-            searchString = "%"+searchString+"%";
+        if(query != null && !query.isEmpty()){
+            query = "\'\""+query+"\'\"";
             return new CursorLoader(
                     getActivity(),
                     AlexandriaContract.BookEntry.CONTENT_URI,
                     null,
                     selection,
-                    new String[]{searchString,searchString},
+                    new String[]{query,query},
                     null
             );
         }

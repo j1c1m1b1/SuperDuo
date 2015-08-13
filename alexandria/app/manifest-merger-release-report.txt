@@ -29,7 +29,7 @@ MERGED from com.android.support:support-v4:21.0.3:16:5
 		ADDED from AndroidManifest.xml:9:9
 	android:theme
 		ADDED from AndroidManifest.xml:11:9
-activity#it.jaschke.alexandria.MainActivity
+activity#it.jaschke.alexandria.activities.MainActivity
 ADDED from AndroidManifest.xml:12:9
 	android:label
 		ADDED from AndroidManifest.xml:15:13
