@@ -62,9 +62,14 @@ public class ListOfBooksFragment extends Fragment implements LoaderManager.Loade
             public void onItemClick(AdapterView<?> adapterView, View view, int position, long l) {
                 Cursor cursor = bookListAdapter.getCursor();
                 if (cursor != null && cursor.moveToPosition(position)) {
-                    ((Callback) getActivity())
-                            .onItemSelected(cursor.getString(cursor
-                                    .getColumnIndex(AlexandriaContract.BookEntry._ID)));
+
+                    String bookId = cursor.getString(cursor
+                            .getColumnIndex(AlexandriaContract.BookEntry._ID));
+
+                    String bookTitle = cursor.getString(cursor
+                            .getColumnIndex(AlexandriaContract.BookEntry.TITLE));
+
+                    ((Callback) getActivity()).onItemSelected(bookId, bookTitle);
                 }
             }
         });

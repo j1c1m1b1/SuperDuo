@@ -24,16 +24,20 @@ import com.bumptech.glide.Glide;
 import it.jaschke.alexandria.R;
 import it.jaschke.alexandria.activities.MainActivity;
 import it.jaschke.alexandria.data.AlexandriaContract;
+import it.jaschke.alexandria.model.Book;
 import it.jaschke.alexandria.services.BookService;
 
 
 public class BookDetail extends Fragment implements LoaderManager.LoaderCallbacks<Cursor> {
 
     public static final String EAN_KEY = "EAN";
+    private static final String BOOK = "book";
     private static final int LOADER_ID = 10;
     private View rootView;
     private String ean;
     private ShareActionProvider shareActionProvider;
+
+    private Book book;
 
     public BookDetail(){
     }
@@ -41,6 +45,11 @@ public class BookDetail extends Fragment implements LoaderManager.LoaderCallback
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        if(savedInstanceState != null && savedInstanceState.containsKey(BOOK))
+        {
+            book = savedInstanceState.getParcelable(BOOK);
+            refreshUi();
+        }
         setHasOptionsMenu(true);
     }
 
@@ -51,7 +60,10 @@ public class BookDetail extends Fragment implements LoaderManager.LoaderCallback
         Bundle arguments = getArguments();
         if (arguments != null) {
             ean = arguments.getString(BookDetail.EAN_KEY);
-            getLoaderManager().restartLoader(LOADER_ID, null, this);
+            if(book == null)
+            {
+                getLoaderManager().initLoader(LOADER_ID, null, this);
+            }
         }
 
         rootView = inflater.inflate(R.layout.fragment_full_book, container, false);
@@ -72,8 +84,11 @@ public class BookDetail extends Fragment implements LoaderManager.LoaderCallback
     @Override
     public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
         inflater.inflate(R.menu.book_detail, menu);
+    }
 
-        menu.removeItem(R.menu.main);
+    @Override
+    public void onPrepareOptionsMenu(Menu menu) {
+        super.onPrepareOptionsMenu(menu);
 
         MenuItem menuItem = menu.findItem(R.id.action_share);
         shareActionProvider = (ShareActionProvider) MenuItemCompat.getActionProvider(menuItem);
@@ -81,6 +96,7 @@ public class BookDetail extends Fragment implements LoaderManager.LoaderCallback
 
     @Override
     public android.support.v4.content.Loader<Cursor> onCreateLoader(int id, Bundle args) {
+
         return new CursorLoader(
                 getActivity(),
                 AlexandriaContract.BookEntry.buildFullBookUri(Long.parseLong(ean)),
@@ -98,7 +114,26 @@ public class BookDetail extends Fragment implements LoaderManager.LoaderCallback
         }
 
         String bookTitle = data.getString(data.getColumnIndex(AlexandriaContract.BookEntry.TITLE));
-        ((TextView) rootView.findViewById(R.id.fullBookTitle)).setText(bookTitle);
+        String bookSubTitle = data.getString(data.getColumnIndex(AlexandriaContract.BookEntry.SUBTITLE));
+        String desc = data.getString(data.getColumnIndex(AlexandriaContract.BookEntry.DESC));
+        String authors = data.getString(data.getColumnIndex(AlexandriaContract.AuthorEntry.AUTHOR));
+        String imgUrl = data.getString(data.getColumnIndex(AlexandriaContract.BookEntry.IMAGE_URL));
+        String categories = data.getString(data.getColumnIndex(AlexandriaContract.CategoryEntry.CATEGORY));
+
+        book = new Book(bookTitle, bookSubTitle, desc, authors, imgUrl, categories);
+
+        refreshUi();
+    }
+
+    private void refreshUi()
+    {
+        String bookTitle = book.getTitle();
+        String bookSubTitle = book.getSubtitle();
+        String desc = book.getDesc();
+        String authors = book.getAuthors();
+        String imgUrl = book.getImgUrl();
+        String categories = book.getCategories();
+
 
         Intent shareIntent = new Intent(Intent.ACTION_SEND);
         if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP)
@@ -109,17 +144,16 @@ public class BookDetail extends Fragment implements LoaderManager.LoaderCallback
         shareIntent.putExtra(Intent.EXTRA_TEXT, getString(R.string.share_text)+ bookTitle);
         shareActionProvider.setShareIntent(shareIntent);
 
-        String bookSubTitle = data.getString(data.getColumnIndex(AlexandriaContract.BookEntry.SUBTITLE));
+
+        ((TextView) rootView.findViewById(R.id.fullBookTitle)).setText(bookTitle);
+
         ((TextView) rootView.findViewById(R.id.fullBookSubTitle)).setText(bookSubTitle);
 
-        String desc = data.getString(data.getColumnIndex(AlexandriaContract.BookEntry.DESC));
         ((TextView) rootView.findViewById(R.id.fullBookDesc)).setText(desc);
 
-        String authors = data.getString(data.getColumnIndex(AlexandriaContract.AuthorEntry.AUTHOR));
         String[] authorsArr = authors.split(",");
         ((TextView) rootView.findViewById(R.id.authors)).setLines(authorsArr.length);
         ((TextView) rootView.findViewById(R.id.authors)).setText(authors.replace(",","\n"));
-        String imgUrl = data.getString(data.getColumnIndex(AlexandriaContract.BookEntry.IMAGE_URL));
         if(Patterns.WEB_URL.matcher(imgUrl).matches()){
 
             ImageView fullBookCover = (ImageView)rootView.findViewById(R.id.fullBookCover);
@@ -127,7 +161,6 @@ public class BookDetail extends Fragment implements LoaderManager.LoaderCallback
             Glide.with(this).load(imgUrl).placeholder(R.drawable.ic_launcher).into(fullBookCover);
         }
 
-        String categories = data.getString(data.getColumnIndex(AlexandriaContract.CategoryEntry.CATEGORY));
         ((TextView) rootView.findViewById(R.id.categories)).setText(categories);
     }
 
@@ -142,5 +175,11 @@ public class BookDetail extends Fragment implements LoaderManager.LoaderCallback
         if(MainActivity.IS_TABLET && rootView.findViewById(R.id.right_container)==null){
             getActivity().getSupportFragmentManager().popBackStack();
         }
+    }
+
+    @Override
+    public void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+        outState.putParcelable(BOOK, book);
     }
 }

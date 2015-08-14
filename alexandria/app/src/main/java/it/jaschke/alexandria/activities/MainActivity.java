@@ -12,9 +12,9 @@ import android.support.v4.app.FragmentTransaction;
 import android.support.v4.content.LocalBroadcastManager;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.SearchView;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.view.View;
 import android.widget.Toast;
 
 import it.jaschke.alexandria.R;
@@ -52,25 +52,23 @@ public class MainActivity extends AppCompatActivity implements Callback {
             setContentView(R.layout.activity_main);
         }
 
+        final FragmentManager manager = getSupportFragmentManager();
+
+        manager.addOnBackStackChangedListener(new FragmentManager.OnBackStackChangedListener() {
+            @Override
+            public void onBackStackChanged() {
+                int count = manager.getBackStackEntryCount();
+                Log.d(MainActivity.class.getSimpleName(), "Backstack count: " + count);
+                if(count == 0)
+                {
+                    setTitle(R.string.books);
+                }
+            }
+        });
 
         if(!added)
         {
             setTitle(R.string.books);
-            final FragmentManager manager = getSupportFragmentManager();
-
-            manager.addOnBackStackChangedListener(new FragmentManager.OnBackStackChangedListener() {
-                @Override
-                public void onBackStackChanged() {
-                    int count = manager.getBackStackEntryCount() - 1;
-                    if(count >= 0)
-                    {
-                        if(manager.getBackStackEntryAt(count).getName()
-                                .equals(getString(R.string.list_books)))
-                        {
-                        }
-                    }
-                }
-            });
 
             listFragment = new ListOfBooksFragment();
 
@@ -81,7 +79,6 @@ public class MainActivity extends AppCompatActivity implements Callback {
                 id = R.id.right_container;
             }
             transaction.replace(id, listFragment)
-                    .addToBackStack(getString(R.string.list_books))
                     .commit();
             added = true;
         }
@@ -136,7 +133,7 @@ public class MainActivity extends AppCompatActivity implements Callback {
     }
 
     @Override
-    public void onItemSelected(String ean) {
+    public void onItemSelected(String ean, String bookTitle) {
         Bundle args = new Bundle();
         args.putString(BookDetail.EAN_KEY, ean);
 
@@ -147,6 +144,9 @@ public class MainActivity extends AppCompatActivity implements Callback {
         if(findViewById(R.id.right_container) != null){
             id = R.id.right_container;
         }
+
+        setTitle(bookTitle);
+
         getSupportFragmentManager().beginTransaction()
                 .replace(id, fragment)
                 .addToBackStack("Book Detail")
@@ -154,22 +154,10 @@ public class MainActivity extends AppCompatActivity implements Callback {
 
     }
 
-    public void goBack(View view){
-        getSupportFragmentManager().popBackStack();
-    }
-
     private boolean isTablet() {
         return (getApplicationContext().getResources().getConfiguration().screenLayout
                 & Configuration.SCREENLAYOUT_SIZE_MASK)
                 >= Configuration.SCREENLAYOUT_SIZE_LARGE;
-    }
-
-    @Override
-    public void onBackPressed() {
-        if(getSupportFragmentManager().getBackStackEntryCount()<2){
-            finish();
-        }
-        super.onBackPressed();
     }
 
     @Override
