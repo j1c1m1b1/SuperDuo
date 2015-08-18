@@ -31,7 +31,7 @@ public class BookListAdapter extends CursorAdapter {
 
         String imgUrl = cursor.getString(cursor.getColumnIndex(AlexandriaContract.BookEntry.IMAGE_URL));
 
-        Glide.with(context).load(imgUrl).placeholder(R.drawable.ic_launcher)
+        Glide.with(context).load(imgUrl).placeholder(R.drawable.placeholder)
                 .into(viewHolder.bookCover);
 
         String bookTitle = cursor.getString(cursor.getColumnIndex(AlexandriaContract.BookEntry.TITLE));

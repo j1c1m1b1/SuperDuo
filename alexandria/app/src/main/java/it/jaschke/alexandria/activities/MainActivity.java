@@ -2,9 +2,7 @@ package it.jaschke.alexandria.activities;
 
 import android.app.SearchManager;
 import android.content.BroadcastReceiver;
-import android.content.Context;
 import android.content.Intent;
-import android.content.IntentFilter;
 import android.content.res.Configuration;
 import android.os.Bundle;
 import android.support.v4.app.FragmentManager;
@@ -15,19 +13,15 @@ import android.support.v7.widget.SearchView;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.widget.Toast;
 
 import it.jaschke.alexandria.R;
 import it.jaschke.alexandria.SettingsActivity;
 import it.jaschke.alexandria.api.Callback;
-import it.jaschke.alexandria.fragments.BookDetail;
+import it.jaschke.alexandria.fragments.BookDetailFragment;
 import it.jaschke.alexandria.fragments.ListOfBooksFragment;
 
 
 public class MainActivity extends AppCompatActivity implements Callback {
-
-    public static final String MESSAGE_EVENT = "MESSAGE_EVENT";
-    public static final String MESSAGE_KEY = "MESSAGE_EXTRA";
 
     private static final String ADDED = "added";
 
@@ -91,9 +85,7 @@ public class MainActivity extends AppCompatActivity implements Callback {
             listFragment.search(query);
         }
 
-        messageReceiver = new MessageReceiver();
-        IntentFilter filter = new IntentFilter(MESSAGE_EVENT);
-        LocalBroadcastManager.getInstance(this).registerReceiver(messageReceiver, filter);
+
 
     }
 
@@ -135,9 +127,9 @@ public class MainActivity extends AppCompatActivity implements Callback {
     @Override
     public void onItemSelected(String ean, String bookTitle) {
         Bundle args = new Bundle();
-        args.putString(BookDetail.EAN_KEY, ean);
+        args.putString(BookDetailFragment.EAN_KEY, ean);
 
-        BookDetail fragment = new BookDetail();
+        BookDetailFragment fragment = new BookDetailFragment();
         fragment.setArguments(args);
 
         int id = R.id.container;
@@ -166,12 +158,4 @@ public class MainActivity extends AppCompatActivity implements Callback {
         outState.putBoolean(ADDED, added);
     }
 
-    private class MessageReceiver extends BroadcastReceiver {
-        @Override
-        public void onReceive(Context context, Intent intent) {
-            if(intent.getStringExtra(MESSAGE_KEY)!=null){
-                Toast.makeText(MainActivity.this, intent.getStringExtra(MESSAGE_KEY), Toast.LENGTH_LONG).show();
-            }
-        }
-    }
 }

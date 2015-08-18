@@ -26,9 +26,10 @@ import it.jaschke.alexandria.activities.MainActivity;
 import it.jaschke.alexandria.data.AlexandriaContract;
 import it.jaschke.alexandria.model.Book;
 import it.jaschke.alexandria.services.BookService;
+import it.jaschke.alexandria.util.Constants;
 
 
-public class BookDetail extends Fragment implements LoaderManager.LoaderCallbacks<Cursor> {
+public class BookDetailFragment extends Fragment implements LoaderManager.LoaderCallbacks<Cursor> {
 
     public static final String EAN_KEY = "EAN";
     private static final String BOOK = "book";
@@ -39,7 +40,7 @@ public class BookDetail extends Fragment implements LoaderManager.LoaderCallback
 
     private Book book;
 
-    public BookDetail(){
+    public BookDetailFragment(){
     }
 
     @Override
@@ -59,7 +60,7 @@ public class BookDetail extends Fragment implements LoaderManager.LoaderCallback
 
         Bundle arguments = getArguments();
         if (arguments != null) {
-            ean = arguments.getString(BookDetail.EAN_KEY);
+            ean = arguments.getString(BookDetailFragment.EAN_KEY);
             if(book == null)
             {
                 getLoaderManager().initLoader(LOADER_ID, null, this);
@@ -71,8 +72,8 @@ public class BookDetail extends Fragment implements LoaderManager.LoaderCallback
             @Override
             public void onClick(View view) {
                 Intent bookIntent = new Intent(getActivity(), BookService.class);
-                bookIntent.putExtra(BookService.EAN, ean);
-                bookIntent.setAction(BookService.DELETE_BOOK);
+                bookIntent.putExtra(Constants.EAN, ean);
+                bookIntent.setAction(Constants.DELETE_BOOK);
                 getActivity().startService(bookIntent);
                 getActivity().getSupportFragmentManager().popBackStack();
             }
@@ -129,9 +130,9 @@ public class BookDetail extends Fragment implements LoaderManager.LoaderCallback
     {
         String bookTitle = book.getTitle();
         String bookSubTitle = book.getSubtitle();
-        String desc = book.getDesc();
+        String desc = book.getDescription();
         String authors = book.getAuthors();
-        String imgUrl = book.getImgUrl();
+        String imgUrl = book.getThumbnail();
         String categories = book.getCategories();
 
 

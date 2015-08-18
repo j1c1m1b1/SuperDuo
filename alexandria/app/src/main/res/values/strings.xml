@@ -12,7 +12,7 @@
     <string name="input_hint">Insert ISBN-13. Digits only.</string>
     <string name="book_cover">Bookcover</string>
 
-    <string name="ok_button">Next</string>
+    <string name="ok_button">Add Book</string>
     <string name="cancel_button">Cancel</string>
     <string name="not_found">No Book found</string>
     <string name="delete">Delete Book</string>
@@ -28,4 +28,6 @@
     <string name="no_books">You haven\'t added any books</string>
     <string name="add_book">Add New Book</string>
     <string name="list_books">List Books</string>
+    <string name="no_books_found">No books were found with the entered ISBN</string>
+    <string name="book_saved">Book saved</string>
 </resources>

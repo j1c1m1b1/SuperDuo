@@ -1,132 +1,116 @@
-<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools" android:layout_width="match_parent"
-    android:layout_height="match_parent" tools:context="it.jaschke.alexandria.fragments.AddBook">
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:padding="@dimen/padding_medium"
+    tools:context="it.jaschke.alexandria.fragments.AddBookFragment">
 
-    <RelativeLayout
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:layout_gravity="left|center_vertical"
+    <LinearLayout
+        android:id="@+id/eancontainer"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center_horizontal"
         android:orientation="horizontal">
 
         <EditText
             android:id="@+id/ean"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_alignParentLeft="true"
-            android:layout_alignParentStart="true"
-            android:layout_alignParentTop="true"
-            android:layout_marginLeft="40dp"
-            android:layout_marginStart="40dp"
-            android:layout_marginTop="30dp"
+            android:gravity="center"
             android:hint="@string/input_hint"
+            android:imeOptions="actionDone"
             android:inputType="number"
             android:maxLength="@integer/ean_size"
             android:maxLines="1"
             android:minEms="@integer/ean_width"
-            android:saveEnabled="true"
-            android:textIsSelectable="false"/>
+            tools:text="1234567891234"/>
 
         <Button
             android:id="@+id/scan_button"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_alignBottom="@+id/ean"
-            android:layout_marginLeft="23dp"
-            android:layout_marginStart="23dp"
-            android:layout_toEndOf="@+id/ean"
-            android:layout_toRightOf="@+id/ean"
             android:text="@string/scan_button"/>
+    </LinearLayout>
 
-        <TextView
-            android:id="@+id/bookTitle"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_alignLeft="@+id/ean"
-            android:layout_alignStart="@+id/ean"
-            android:layout_below="@+id/scan_button"
-            android:layout_marginLeft="10dp"
-            android:layout_marginRight="10dp"
-            android:layout_marginTop="10dp"
-            android:textIsSelectable="true"
-            android:textSize="@dimen/head_line"
-            android:textStyle="bold"/>
-
-        <TextView
-            android:id="@+id/bookSubTitle"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_alignLeft="@+id/bookTitle"
-            android:layout_alignStart="@+id/bookTitle"
-            android:layout_below="@+id/bookTitle"
-            android:layout_marginTop="10dp"/>
-
-        <ImageView
-            android:id="@+id/bookCover"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_alignLeft="@+id/bookSubTitle"
-            android:layout_alignStart="@+id/bookSubTitle"
-            android:layout_below="@+id/bookSubTitle"
-            android:adjustViewBounds="true"
-            android:contentDescription="@string/book_cover"
-            android:minHeight="20dip"
-            android:minWidth="20dip"
-            />
-
-        <TextView
-            android:id="@+id/authors"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_alignTop="@+id/bookCover"
-            android:layout_marginLeft="25dp"
-            android:layout_toRightOf="@+id/bookCover"
-            android:textSize="@dimen/small_fontsize"
-            />
-
-        <TextView
-            android:id="@+id/categories"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_alignLeft="@+id/bookCover"
-            android:layout_alignStart="@+id/bookCover"
-            android:layout_below="@+id/bookCover"
-            android:layout_marginTop="10dp"
-            android:textSize="@dimen/small_fontsize"/>
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal">
+            <ImageView
+                android:id="@+id/bookCover"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:layout_marginEnd="@dimen/padding_small"
+                android:layout_marginRight="@dimen/padding_small"
+                android:layout_weight="1"
+                android:adjustViewBounds="true"
+                android:contentDescription="@string/book_cover"
+                android:maxHeight="240dp"
+                android:maxWidth="120dp"
+                android:minHeight="240dp"
+                android:minWidth="120dp"
+                android:src="@drawable/placeholder"
+                android:visibility="invisible"/>
 
         <LinearLayout
-            android:layout_width="wrap_content"
-            android:layout_height="match_parent"
-            android:layout_alignParentRight="true"
-            android:layout_alignParentTop="true"
-            android:orientation="vertical"
-            >
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="2"
+            android:orientation="vertical">
 
-            <ImageButton
-                android:id="@+id/delete_button"
-                style="?android:attr/buttonBarButtonStyle"
+            <TextView
+                android:id="@+id/bookTitle"
                 android:layout_width="wrap_content"
-                android:layout_height="match_parent"
-                android:layout_weight="1"
-                android:contentDescription="@string/cancel_button"
-                android:src="@drawable/ic_action_discard"
-                android:visibility="invisible"
-                />
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="@dimen/padding_medium"
+                android:textAppearance="@style/TextAppearance.AppCompat.Title"
+                android:textIsSelectable="true"
+                tools:text="Hello Book"/>
 
-            <ImageButton
-                android:id="@+id/save_button"
-                style="?android:attr/buttonBarButtonStyle"
+            <TextView
+                android:id="@+id/bookSubTitle"
                 android:layout_width="wrap_content"
-                android:layout_height="match_parent"
-                android:layout_gravity="bottom"
-                android:layout_weight="1"
-                android:contentDescription="@string/ok_button"
-                android:src="@drawable/ic_action_accept"
-                android:text="@string/ok_button"
-                android:visibility="invisible"
-                />
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="@dimen/padding_medium"
+                android:ellipsize="end"
+                android:textAppearance="@style/TextAppearance.AppCompat.Subhead"
+                android:textColor="@color/text_gray"
+                tools:text="Hello Book"/>
 
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/padding_medium">
+
+                <TextView
+                    android:id="@+id/authors"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:gravity="start"
+                    tools:text="Sir Arthur Conan Doyle"
+                    />
+
+                <TextView
+                    android:id="@+id/categories"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:gravity="end"
+                    tools:text="Fiction"/>
+
+            </LinearLayout>
 
         </LinearLayout>
 
-    </RelativeLayout>
-</FrameLayout>
+    </LinearLayout>
+    <Button
+        android:id="@+id/save_button"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="bottom|end"
+        android:text="@string/ok_button"
+        android:visibility="invisible"
+        />
+</LinearLayout>

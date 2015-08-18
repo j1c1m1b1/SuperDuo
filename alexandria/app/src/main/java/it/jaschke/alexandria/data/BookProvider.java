@@ -8,7 +8,7 @@ import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteQueryBuilder;
 import android.net.Uri;
-import android.util.Log;
+import android.support.annotation.NonNull;
 
 /**
  * Created by saj on 24/12/14.
@@ -28,9 +28,6 @@ public class BookProvider extends ContentProvider {
     private static final int BOOK_FULLDETAIL = 501;
 
     private static final UriMatcher uriMatcher = buildUriMatcher();
-
-    private DbHelper dbHelper;
-
     private static final SQLiteQueryBuilder bookFull;
 
     static{
@@ -41,6 +38,7 @@ public class BookProvider extends ContentProvider {
                 " LEFT OUTER JOIN " +  AlexandriaContract.CategoryEntry.TABLE_NAME + " USING (" +AlexandriaContract.BookEntry._ID + ")");
     }
 
+    private DbHelper dbHelper;
 
     private static UriMatcher buildUriMatcher() {
 
@@ -69,7 +67,7 @@ public class BookProvider extends ContentProvider {
     }
 
     @Override
-    public Cursor query(Uri uri, String[] projection, String selection, String[] selectionArgs, String sortOrder) {
+    public Cursor query(@NonNull Uri uri, String[] projection, String selection, String[] selectionArgs, String sortOrder) {
         Cursor retCursor;
         switch (uriMatcher.match(uri)) {
             case BOOK:
@@ -173,16 +171,17 @@ public class BookProvider extends ContentProvider {
             default:
                 throw new UnsupportedOperationException("Unknown uri: " + uri);
         }
-
-        retCursor.setNotificationUri(getContext().getContentResolver(), uri);
-
+        if(getContext() != null)
+        {
+            retCursor.setNotificationUri(getContext().getContentResolver(), uri);
+        }
         return retCursor;
     }
 
 
 
     @Override
-    public String getType(Uri uri) {
+    public String getType(@NonNull Uri uri) {
         final int match = uriMatcher.match(uri);
 
         switch (match) {
@@ -206,7 +205,7 @@ public class BookProvider extends ContentProvider {
     }
 
     @Override
-    public Uri insert(Uri uri, ContentValues values) {
+    public Uri insert(@NonNull Uri uri, ContentValues values) {
         final SQLiteDatabase db = dbHelper.getWritableDatabase();
         final int match = uriMatcher.match(uri);
         Uri returnUri;
@@ -218,7 +217,10 @@ public class BookProvider extends ContentProvider {
                 } else {
                     throw new android.database.SQLException("Failed to insert row into " + uri);
                 }
-                getContext().getContentResolver().notifyChange(AlexandriaContract.BookEntry.buildFullBookUri(_id), null);
+                if(getContext()!= null)
+                {
+                    getContext().getContentResolver().notifyChange(AlexandriaContract.BookEntry.buildFullBookUri(_id), null);
+                }
                 break;
             }
             case AUTHOR:{
@@ -244,7 +246,7 @@ public class BookProvider extends ContentProvider {
     }
 
     @Override
-    public int delete(Uri uri, String selection, String[] selectionArgs) {
+    public int delete(@NonNull Uri uri, String selection, String[] selectionArgs) {
         final SQLiteDatabase db = dbHelper.getWritableDatabase();
         final int match = uriMatcher.match(uri);
         int rowsDeleted;
@@ -272,13 +274,16 @@ public class BookProvider extends ContentProvider {
         }
         // Because a null deletes all rows
         if (selection == null || rowsDeleted != 0) {
-            getContext().getContentResolver().notifyChange(uri, null);
+            if(getContext() != null)
+            {
+                getContext().getContentResolver().notifyChange(uri, null);
+            }
         }
         return rowsDeleted;
     }
 
     @Override
-    public int update(Uri uri, ContentValues values, String selection, String[] selectionArgs) {
+    public int update(@NonNull Uri uri, ContentValues values, String selection, String[] selectionArgs) {
         final SQLiteDatabase db = dbHelper.getWritableDatabase();
         final int match = uriMatcher.match(uri);
         int rowsUpdated;
@@ -300,8 +305,64 @@ public class BookProvider extends ContentProvider {
                 throw new UnsupportedOperationException("Unknown uri: " + uri);
         }
         if (rowsUpdated != 0) {
-            getContext().getContentResolver().notifyChange(uri, null);
+            if(getContext() != null)
+            {
+                getContext().getContentResolver().notifyChange(uri, null);
+            }
         }
         return rowsUpdated;
+    }
+
+    @Override
+    public int bulkInsert(@NonNull Uri uri, @NonNull ContentValues[] values) {
+        SQLiteDatabase db = dbHelper.getWritableDatabase();
+        int insertedRows = 0;
+        long id;
+        switch (uriMatcher.match(uri))
+        {
+            case AUTHOR:
+                db.beginTransaction();
+                try
+                {
+                    for(ContentValues v : values)
+                    {
+                        id = db.insert(AlexandriaContract.AuthorEntry.TABLE_NAME, null, v);
+                        if(id != -1)
+                        {
+                            insertedRows++;
+                        }
+                    }
+                    db.setTransactionSuccessful();
+                }
+                finally {
+                    db.endTransaction();
+                }
+                if(getContext() != null)
+                    getContext().getContentResolver().notifyChange(uri, null);
+                return insertedRows;
+            case CATEGORY:
+                db.beginTransaction();
+                try
+                {
+                    for(ContentValues v : values)
+                    {
+                        id = db.insert(AlexandriaContract.CategoryEntry.TABLE_NAME, null, v);
+                        if(id != -1)
+                        {
+                            insertedRows++;
+                        }
+                    }
+                    db.setTransactionSuccessful();
+                }
+                finally {
+                    db.endTransaction();
+                }
+                if(getContext() != null)
+                    getContext().getContentResolver().notifyChange(uri, null);
+                return insertedRows;
+            default:
+                return super.bulkInsert(uri, values);
+        }
+
     }
 }

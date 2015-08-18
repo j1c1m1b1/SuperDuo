@@ -3,25 +3,21 @@ package it.jaschke.alexandria.services;
 import android.app.IntentService;
 import android.content.ContentValues;
 import android.content.Intent;
-import android.database.Cursor;
-import android.net.Uri;
 import android.support.v4.content.LocalBroadcastManager;
 import android.util.Log;
+
+import com.squareup.okhttp.Response;
 
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.io.BufferedReader;
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.net.HttpURLConnection;
-import java.net.URL;
 
 import it.jaschke.alexandria.R;
-import it.jaschke.alexandria.activities.MainActivity;
 import it.jaschke.alexandria.data.AlexandriaContract;
+import it.jaschke.alexandria.model.Book;
+import it.jaschke.alexandria.util.Constants;
 
 
 /**
@@ -31,9 +27,6 @@ import it.jaschke.alexandria.data.AlexandriaContract;
  */
 public class BookService extends IntentService {
 
-    public static final String FETCH_BOOK = "it.jaschke.alexandria.services.action.FETCH_BOOK";
-    public static final String DELETE_BOOK = "it.jaschke.alexandria.services.action.DELETE_BOOK";
-    public static final String EAN = "it.jaschke.alexandria.services.extra.EAN";
     private final String LOG_TAG = BookService.class.getSimpleName();
 
     public BookService() {
@@ -44,12 +37,87 @@ public class BookService extends IntentService {
     protected void onHandleIntent(Intent intent) {
         if (intent != null) {
             final String action = intent.getAction();
-            if (FETCH_BOOK.equals(action)) {
-                final String ean = intent.getStringExtra(EAN);
-                fetchBook(ean);
-            } else if (DELETE_BOOK.equals(action)) {
-                final String ean = intent.getStringExtra(EAN);
+            if(Constants.SAVE_BOOK.equals(action))
+            {
+                String ean = intent.getStringExtra(Constants.EAN);
+                Book book = intent.getParcelableExtra(Constants.BOOK);
+                saveBook(ean, book);
+            }
+            else if (Constants.DELETE_BOOK.equals(action))
+            {
+                final String ean = intent.getStringExtra(Constants.EAN);
                 deleteBook(ean);
+            }
+        }
+    }
+
+    private void saveBook(String ean, Book book) {
+
+        String title = book.getTitle();
+        String subtitle = book.getSubtitle();
+        String description = book.getDescription();
+        String thumbnail = book.getThumbnail();
+        String authors = book.getAuthors();
+        String categories = book.getCategories();
+
+        writeBackBook(ean, title, subtitle, description,
+                thumbnail);
+
+        saveAuthors(ean, authors);
+
+        saveCategories(ean, categories);
+
+        Intent messageIntent = new Intent(Constants.MESSAGE_EVENT);
+        messageIntent.putExtra(Constants.MESSAGE_KEY,getResources().getString(R.string.book_saved));
+        LocalBroadcastManager.getInstance(getApplicationContext()).sendBroadcast(messageIntent);
+    }
+
+    private void saveAuthors(String ean, String authors)
+    {
+        if(authors != null && !authors.isEmpty())
+        {
+            ContentValues v = new ContentValues();
+            if(authors.contains(","))
+            {
+                String[] authorList = authors.split(",");
+                ContentValues[] values = new ContentValues[authorList.length];
+                for(int i = 0; i < authorList.length; i ++)
+                {
+                    v.put(AlexandriaContract.AuthorEntry._ID, ean);
+                    v.put(AlexandriaContract.AuthorEntry.AUTHOR, authorList[i].trim());
+                    values[i] = v;
+                    v.clear();
+                }
+                getContentResolver().bulkInsert(AlexandriaContract.AuthorEntry.CONTENT_URI, values);
+            }
+            else
+            {
+                getContentResolver().insert(AlexandriaContract.AuthorEntry.CONTENT_URI, v);
+            }
+        }
+    }
+
+    private void saveCategories(String ean, String categories)
+    {
+        if(categories != null && !categories.isEmpty())
+        {
+            ContentValues v = new ContentValues();
+            if(categories.contains(","))
+            {
+                String[] categoriesList = categories.split(",");
+                ContentValues[] values = new ContentValues[categoriesList.length];
+                for(int i = 0; i < categoriesList.length; i ++)
+                {
+                    v.put(AlexandriaContract.AuthorEntry._ID, ean);
+                    v.put(AlexandriaContract.AuthorEntry.AUTHOR, categoriesList[i]);
+                    values[i] = v;
+                    v.clear();
+                }
+                getContentResolver().bulkInsert(AlexandriaContract.CategoryEntry.CONTENT_URI, values);
+            }
+            else
+            {
+                getContentResolver().insert(AlexandriaContract.CategoryEntry.CONTENT_URI, v);
             }
         }
     }
@@ -64,84 +132,8 @@ public class BookService extends IntentService {
         }
     }
 
-    /**
-     * Handle action fetchBook in the provided background thread with the provided
-     * parameters.
-     */
-    private void fetchBook(String ean) {
-
-        if(ean.length()!=13){
-            return;
-        }
-
-        Cursor bookEntry = getContentResolver().query(
-                AlexandriaContract.BookEntry.buildBookUri(Long.parseLong(ean)),
-                null, // leaving "columns" null just returns all the columns.
-                null, // cols for "where" clause
-                null, // values for "where" clause
-                null  // sort order
-        );
-
-        if(bookEntry.getCount()>0){
-            bookEntry.close();
-            return;
-        }
-
-        bookEntry.close();
-
-        HttpURLConnection urlConnection = null;
-        BufferedReader reader = null;
-        String bookJsonString = null;
-
-        try {
-            final String FORECAST_BASE_URL = "https://www.googleapis.com/books/v1/volumes?";
-            final String QUERY_PARAM = "q";
-
-            final String ISBN_PARAM = "isbn:" + ean;
-
-            Uri builtUri = Uri.parse(FORECAST_BASE_URL).buildUpon()
-                    .appendQueryParameter(QUERY_PARAM, ISBN_PARAM)
-                    .build();
-
-            URL url = new URL(builtUri.toString());
-
-            urlConnection = (HttpURLConnection) url.openConnection();
-            urlConnection.setRequestMethod("GET");
-            urlConnection.connect();
-
-            InputStream inputStream = urlConnection.getInputStream();
-            StringBuffer buffer = new StringBuffer();
-            if (inputStream == null) {
-                return;
-            }
-
-            reader = new BufferedReader(new InputStreamReader(inputStream));
-            String line;
-            while ((line = reader.readLine()) != null) {
-                buffer.append(line);
-                buffer.append("\n");
-            }
-
-            if (buffer.length() == 0) {
-                return;
-            }
-            bookJsonString = buffer.toString();
-        } catch (Exception e) {
-            Log.e(LOG_TAG, "Error ", e);
-        } finally {
-            if (urlConnection != null) {
-                urlConnection.disconnect();
-            }
-            if (reader != null) {
-                try {
-                    reader.close();
-                } catch (final IOException e) {
-                    Log.e(LOG_TAG, "Error closing stream", e);
-                }
-            }
-
-        }
-
+    private void saveBook(String ean, Response response)
+    {
         final String ITEMS = "items";
 
         final String VOLUME_INFO = "volumeInfo";
@@ -155,14 +147,19 @@ public class BookService extends IntentService {
         final String IMG_URL = "thumbnail";
 
         try {
+
+            String bookJsonString = response.body().string();
+
+            Log.d(LOG_TAG, "" + bookJsonString);
+
             JSONObject bookJson = new JSONObject(bookJsonString);
             JSONArray bookArray;
             if(bookJson.has(ITEMS)){
                 bookArray = bookJson.getJSONArray(ITEMS);
             }else{
-                Intent messageIntent = new Intent(MainActivity.MESSAGE_EVENT);
-                messageIntent.putExtra(MainActivity.MESSAGE_KEY,getResources().getString(R.string.not_found));
-                LocalBroadcastManager.getInstance(getApplicationContext()).sendBroadcast(messageIntent);
+//                Intent messageIntent = new Intent(MainActivity.MESSAGE_EVENT);
+//                messageIntent.putExtra(MainActivity.MESSAGE_KEY,getResources().getString(R.string.not_found));
+//                LocalBroadcastManager.getInstance(getApplicationContext()).sendBroadcast(messageIntent);
                 return;
             }
 
@@ -196,6 +193,8 @@ public class BookService extends IntentService {
 
         } catch (JSONException e) {
             Log.e(LOG_TAG, "Error ", e);
+        } catch (IOException e) {
+            e.printStackTrace();
         }
     }
 
@@ -228,4 +227,4 @@ public class BookService extends IntentService {
             values= new ContentValues();
         }
     }
- }
+}

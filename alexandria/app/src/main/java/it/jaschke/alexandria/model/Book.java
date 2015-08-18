@@ -19,28 +19,40 @@ public class Book implements Parcelable {
             return new Book[size];
         }
     };
+
+    /*
+    final String SUBTITLE = "subtitle";
+        final String AUTHORS = "authors";
+        final String DESC = "description";
+        final String CATEGORIES = "categories";
+        final String IMG_URL_PATH = "imageLinks";
+        final String IMG_URL = "thumbnail";
+     */
+
+
     private String title;
     private String subtitle;
-    private String desc;
+    private String description;
     private String authors;
-    private String imgUrl;
+    private String thumbnail;
     private String categories;
 
-    public Book(String title, String subtitle, String desc, String authors, String imgUrl, String categories) {
+    public Book(String title, String subtitle, String description, String authors, String thumbnail,
+                String categories) {
         this.title = title;
         this.subtitle = subtitle;
-        this.desc = desc;
+        this.description = description;
         this.authors = authors;
-        this.imgUrl = imgUrl;
+        this.thumbnail = thumbnail;
         this.categories = categories;
     }
 
     protected Book(Parcel in) {
         title = in.readString();
         subtitle = in.readString();
-        desc = in.readString();
+        description = in.readString();
         authors = in.readString();
-        imgUrl = in.readString();
+        thumbnail = in.readString();
         categories = in.readString();
     }
 
@@ -48,24 +60,48 @@ public class Book implements Parcelable {
         return title;
     }
 
+    public void setTitle(String title) {
+        this.title = title;
+    }
+
     public String getSubtitle() {
         return subtitle;
     }
 
-    public String getDesc() {
-        return desc;
+    public void setSubtitle(String subtitle) {
+        this.subtitle = subtitle;
+    }
+
+    public String getDescription() {
+        return description;
+    }
+
+    public void setDescription(String description) {
+        this.description = description;
     }
 
     public String getAuthors() {
         return authors;
     }
 
-    public String getImgUrl() {
-        return imgUrl;
+    public void setAuthors(String authors) {
+        this.authors = authors;
+    }
+
+    public String getThumbnail() {
+        return thumbnail;
+    }
+
+    public void setThumbnail(String thumbnail) {
+        this.thumbnail = thumbnail;
     }
 
     public String getCategories() {
         return categories;
+    }
+
+    public void setCategories(String categories) {
+        this.categories = categories;
     }
 
     @Override
@@ -77,9 +113,9 @@ public class Book implements Parcelable {
     public void writeToParcel(Parcel dest, int flags) {
         dest.writeString(title);
         dest.writeString(subtitle);
-        dest.writeString(desc);
+        dest.writeString(description);
         dest.writeString(authors);
-        dest.writeString(imgUrl);
+        dest.writeString(thumbnail);
         dest.writeString(categories);
     }
 }
