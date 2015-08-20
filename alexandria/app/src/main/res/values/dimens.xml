@@ -1,12 +1,15 @@
 <resources>
-    <!-- Default screen margins, per the Android Design guidelines. -->
     <integer name="ean_size">13</integer>
     <integer name="ean_width">8</integer>
-    <dimen name="head_line">24sp</dimen>
-    <dimen name="small_fontsize">12sp</dimen>
 
     <!--Padding-->
     <dimen name="padding_small">8dp</dimen>
     <dimen name="padding_medium">16dp</dimen>
     <dimen name="padding_large">32dp</dimen>
+
+    <!--Book Thumbnail sizes-->
+    <dimen name="small_thumb_max_width">60dp</dimen>
+    <dimen name="small_thumb_max_height">120dp</dimen>
+    <dimen name="large_thumb_max_width">120dp</dimen>
+    <dimen name="large_thumb_max_height">240dp</dimen>
 </resources>

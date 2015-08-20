@@ -1,21 +1,19 @@
 package it.jaschke.alexandria.activities;
 
 import android.app.SearchManager;
-import android.content.BroadcastReceiver;
 import android.content.Intent;
 import android.content.res.Configuration;
 import android.os.Bundle;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
-import android.support.v4.content.LocalBroadcastManager;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.SearchView;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 
+import it.jaschke.alexandria.AboutActivity;
 import it.jaschke.alexandria.R;
-import it.jaschke.alexandria.SettingsActivity;
 import it.jaschke.alexandria.api.Callback;
 import it.jaschke.alexandria.fragments.BookDetailFragment;
 import it.jaschke.alexandria.fragments.ListOfBooksFragment;
@@ -26,7 +24,6 @@ public class MainActivity extends AppCompatActivity implements Callback {
     private static final String ADDED = "added";
 
     public static boolean IS_TABLET = false;
-    private BroadcastReceiver messageReceiver;
 
     private boolean added;
     private ListOfBooksFragment listFragment;
@@ -76,17 +73,17 @@ public class MainActivity extends AppCompatActivity implements Callback {
                     .commit();
             added = true;
         }
+    }
 
-        Intent intent = getIntent();
-
-        if(intent.getAction().equals(Intent.ACTION_SEARCH) && listFragment != null)
+    @Override
+    protected void onNewIntent(Intent intent) {
+        super.onNewIntent(intent);
+        if(intent.getAction().equals(Intent.ACTION_SEARCH) && listFragment != null
+                && listFragment.isVisible())
         {
             String query = intent.getStringExtra(SearchManager.QUERY);
             listFragment.search(query);
         }
-
-
-
     }
 
     @Override
@@ -111,7 +108,7 @@ public class MainActivity extends AppCompatActivity implements Callback {
         int id = item.getItemId();
 
         if (id == R.id.action_settings) {
-            startActivity(new Intent(this, SettingsActivity.class));
+            startActivity(new Intent(this, AboutActivity.class));
             return true;
         }
 
@@ -120,7 +117,6 @@ public class MainActivity extends AppCompatActivity implements Callback {
 
     @Override
     protected void onDestroy() {
-        LocalBroadcastManager.getInstance(this).unregisterReceiver(messageReceiver);
         super.onDestroy();
     }
 
@@ -136,8 +132,6 @@ public class MainActivity extends AppCompatActivity implements Callback {
         if(findViewById(R.id.right_container) != null){
             id = R.id.right_container;
         }
-
-        setTitle(bookTitle);
 
         getSupportFragmentManager().beginTransaction()
                 .replace(id, fragment)

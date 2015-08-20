@@ -36,9 +36,9 @@ public class BookDetailFragment extends Fragment implements LoaderManager.Loader
     private static final int LOADER_ID = 10;
     private View rootView;
     private String ean;
-    private ShareActionProvider shareActionProvider;
 
     private Book book;
+    private String bookTitle;
 
     public BookDetailFragment(){
     }
@@ -46,12 +46,11 @@ public class BookDetailFragment extends Fragment implements LoaderManager.Loader
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        setHasOptionsMenu(true);
         if(savedInstanceState != null && savedInstanceState.containsKey(BOOK))
         {
             book = savedInstanceState.getParcelable(BOOK);
-            refreshUi();
         }
-        setHasOptionsMenu(true);
     }
 
 
@@ -59,6 +58,7 @@ public class BookDetailFragment extends Fragment implements LoaderManager.Loader
     public View onCreateView(final LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
 
         Bundle arguments = getArguments();
+
         if (arguments != null) {
             ean = arguments.getString(BookDetailFragment.EAN_KEY);
             if(book == null)
@@ -81,18 +81,40 @@ public class BookDetailFragment extends Fragment implements LoaderManager.Loader
         return rootView;
     }
 
+    @Override
+    public void onResume() {
+        super.onResume();
+        if(book != null)
+        {
+            getActivity().invalidateOptionsMenu();
+            refreshUi();
+        }
+    }
 
     @Override
     public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
         inflater.inflate(R.menu.book_detail, menu);
+        MenuItem itemSearch = menu.findItem(R.id.search);
+        if(itemSearch != null)
+        {
+            itemSearch.setVisible(false);
+        }
     }
 
     @Override
     public void onPrepareOptionsMenu(Menu menu) {
         super.onPrepareOptionsMenu(menu);
 
-        MenuItem menuItem = menu.findItem(R.id.action_share);
-        shareActionProvider = (ShareActionProvider) MenuItemCompat.getActionProvider(menuItem);
+        MenuItem item = menu.findItem(R.id.action_share);
+        ShareActionProvider shareActionProvider = (ShareActionProvider) MenuItemCompat.getActionProvider(item);
+        Intent shareIntent = new Intent(Intent.ACTION_SEND);
+        if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP)
+        {
+            shareIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_DOCUMENT);
+        }
+        shareIntent.setType("text/plain");
+        shareIntent.putExtra(Intent.EXTRA_TEXT, getString(R.string.share_text) + " " + bookTitle);
+        shareActionProvider.setShareIntent(shareIntent);
     }
 
     @Override
@@ -128,22 +150,13 @@ public class BookDetailFragment extends Fragment implements LoaderManager.Loader
 
     private void refreshUi()
     {
-        String bookTitle = book.getTitle();
+        bookTitle = book.getTitle();
+        getActivity().setTitle(bookTitle);
         String bookSubTitle = book.getSubtitle();
         String desc = book.getDescription();
         String authors = book.getAuthors();
         String imgUrl = book.getThumbnail();
         String categories = book.getCategories();
-
-
-        Intent shareIntent = new Intent(Intent.ACTION_SEND);
-        if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP)
-        {
-            shareIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_DOCUMENT);
-        }
-        shareIntent.setType("text/plain");
-        shareIntent.putExtra(Intent.EXTRA_TEXT, getString(R.string.share_text)+ bookTitle);
-        shareActionProvider.setShareIntent(shareIntent);
 
 
         ((TextView) rootView.findViewById(R.id.fullBookTitle)).setText(bookTitle);
@@ -152,9 +165,13 @@ public class BookDetailFragment extends Fragment implements LoaderManager.Loader
 
         ((TextView) rootView.findViewById(R.id.fullBookDesc)).setText(desc);
 
-        String[] authorsArr = authors.split(",");
-        ((TextView) rootView.findViewById(R.id.authors)).setLines(authorsArr.length);
-        ((TextView) rootView.findViewById(R.id.authors)).setText(authors.replace(",","\n"));
+        if(authors != null)
+        {
+            String[] authorsArr = authors.split(",");
+            ((TextView) rootView.findViewById(R.id.authors)).setLines(authorsArr.length);
+            ((TextView) rootView.findViewById(R.id.authors)).setText(authors.replace(",","\n"));
+        }
+
         if(Patterns.WEB_URL.matcher(imgUrl).matches()){
 
             ImageView fullBookCover = (ImageView)rootView.findViewById(R.id.fullBookCover);

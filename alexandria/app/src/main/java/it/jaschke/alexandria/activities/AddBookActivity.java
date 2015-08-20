@@ -66,7 +66,7 @@ public class AddBookActivity extends AppCompatActivity {
         @Override
         public void onReceive(Context context, Intent intent) {
 
-            if(fragment != null)
+            if(fragment != null && fragment.isVisible())
             {
                 if(intent.hasExtra(Constants.MESSAGE_KEY))
                 {

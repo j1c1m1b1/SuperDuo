@@ -7,7 +7,7 @@
     tools:context="it.jaschke.alexandria.fragments.AddBookFragment">
 
     <LinearLayout
-        android:id="@+id/eancontainer"
+        android:id="@+id/eanContainer"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="center_horizontal"
@@ -52,19 +52,34 @@
         android:textColor="@color/text_gray"
         tools:text="Hello Book"/>
 
-    <ImageView
-        android:id="@+id/bookCover"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_gravity="center"
-        android:adjustViewBounds="true"
-        android:contentDescription="@string/book_cover"
-        android:maxHeight="240dp"
-        android:maxWidth="120dp"
-        android:minHeight="240dp"
-        android:minWidth="120dp"
-        android:src="@drawable/placeholder"
-        android:visibility="invisible"/>
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+        <ImageView
+            android:id="@+id/bookCover"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:layout_marginEnd="@dimen/padding_medium"
+            android:layout_marginRight="@dimen/padding_medium"
+            android:adjustViewBounds="true"
+            android:contentDescription="@string/book_cover"
+            android:maxHeight="@dimen/large_thumb_max_height"
+            android:maxWidth="@dimen/large_thumb_max_width"
+            android:src="@drawable/placeholder"
+            android:visibility="invisible"/>
+
+        <TextView
+            android:id="@+id/tvDesc"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:ellipsize="end"
+            android:maxLines="7"
+            android:text="@string/no_desc_available"
+            android:textAppearance="@style/TextAppearance.AppCompat.Body1"/>
+    </LinearLayout>
+
 
     <LinearLayout
         android:layout_width="match_parent"

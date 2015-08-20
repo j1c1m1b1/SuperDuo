@@ -1,10 +1,11 @@
 package it.jaschke.alexandria.fragments;
 
-import android.app.Activity;
+import android.content.Context;
 import android.content.Intent;
 import android.database.Cursor;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
+import android.support.design.widget.Snackbar;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.CursorLoader;
@@ -30,13 +31,9 @@ public class ListOfBooksFragment extends Fragment implements LoaderManager.Loade
 
     private int position = ListView.INVALID_POSITION;
     private ListView bookList;
+    private View rootView;
 
     public ListOfBooksFragment() {
-    }
-
-    @Override
-    public void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
     }
 
     @Override
@@ -51,7 +48,7 @@ public class ListOfBooksFragment extends Fragment implements LoaderManager.Loade
         );
 
         bookListAdapter = new BookListAdapter(getActivity(), cursor, 0);
-        View rootView = inflater.inflate(R.layout.fragment_list_of_books, container, false);
+        rootView = inflater.inflate(R.layout.fragment_list_of_books, container, false);
 
         bookList = (ListView) rootView.findViewById(R.id.listOfBooks);
         bookList.setAdapter(bookListAdapter);
@@ -97,6 +94,7 @@ public class ListOfBooksFragment extends Fragment implements LoaderManager.Loade
             bundle.putString(QUERY, query);
             restartLoader(bundle);
         }
+
     }
 
     private void restartLoader(Bundle bundle){
@@ -106,13 +104,13 @@ public class ListOfBooksFragment extends Fragment implements LoaderManager.Loade
     @Override
     public Loader<Cursor> onCreateLoader(int id, Bundle bundle) {
 
-        final String selection = AlexandriaContract.BookEntry.TITLE +" MATCH ? OR " +
-                AlexandriaContract.BookEntry.SUBTITLE + " MATCH ? OR " +
-                AlexandriaContract.BookEntry.SUBTITLE + " MATCH ?";
         String query = bundle.getString(QUERY);
 
         if(query != null && !query.isEmpty()){
-            query = "\'\""+query+"\'\"";
+            final String selection = AlexandriaContract.BookEntry.TITLE +" LIKE ? OR " +
+                    AlexandriaContract.BookEntry.SUBTITLE + " LIKE ?";
+
+            query = "%"+query+"%";
             return new CursorLoader(
                     getActivity(),
                     AlexandriaContract.BookEntry.CONTENT_URI,
@@ -135,9 +133,16 @@ public class ListOfBooksFragment extends Fragment implements LoaderManager.Loade
 
     @Override
     public void onLoadFinished(Loader<Cursor> loader, Cursor data) {
-        bookListAdapter.swapCursor(data);
-        if (position != ListView.INVALID_POSITION) {
-            bookList.smoothScrollToPosition(position);
+        if(data.getCount() > 0)
+        {
+            bookListAdapter.swapCursor(data);
+            if (position != ListView.INVALID_POSITION) {
+                bookList.smoothScrollToPosition(position);
+            }
+        }
+        else
+        {
+            Snackbar.make(rootView, R.string.not_found, Snackbar.LENGTH_SHORT).show();
         }
     }
 
@@ -147,8 +152,8 @@ public class ListOfBooksFragment extends Fragment implements LoaderManager.Loade
     }
 
     @Override
-    public void onAttach(Activity activity) {
-        super.onAttach(activity);
-        activity.setTitle(R.string.books);
+    public void onAttach(Context context) {
+        super.onAttach(context);
+        getActivity().setTitle(R.string.books);
     }
 }

@@ -6,7 +6,7 @@
     tools:context="it.jaschke.alexandria.fragments.AddBookFragment">
 
     <LinearLayout
-        android:id="@+id/eancontainer"
+        android:id="@+id/eanContainer"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="center_horizontal"
@@ -63,7 +63,9 @@
                 android:id="@+id/bookTitle"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginBottom="@dimen/padding_medium"
+                android:layout_marginBottom="@dimen/padding_small"
+                android:ellipsize="end"
+                android:singleLine="true"
                 android:textAppearance="@style/TextAppearance.AppCompat.Title"
                 android:textIsSelectable="true"
                 tools:text="Hello Book"/>
@@ -72,11 +74,22 @@
                 android:id="@+id/bookSubTitle"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginBottom="@dimen/padding_medium"
+                android:layout_marginBottom="@dimen/padding_small"
                 android:ellipsize="end"
+                android:singleLine="true"
                 android:textAppearance="@style/TextAppearance.AppCompat.Subhead"
                 android:textColor="@color/text_gray"
                 tools:text="Hello Book"/>
+
+            <TextView
+                android:id="@+id/tvDesc"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:ellipsize="end"
+                android:maxLines="5"
+                android:text="@string/no_desc_available"
+                android:textAppearance="@style/TextAppearance.AppCompat.Body1"
+                tools:text="Lorem ipsum dolor sit amet, eum ne fastidii voluptua, case omnium sit ut. Cetero iisque singulis duo at, noster mollis necessitatibus sit ei, possit salutandi ex cum. Solum facer movet sed ei. Omnes luptatum mei cu, te brute menandri efficiendi has, ex cum natum fastidii verterem. Duo ut aliquip facilisis intellegat, mel utroque meliore te, at illud aperiam sed."/>
 
             <LinearLayout
                 android:layout_width="match_parent"
@@ -102,15 +115,15 @@
 
             </LinearLayout>
 
+            <Button
+                android:id="@+id/save_button"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="bottom|end"
+                android:layout_marginTop="@dimen/padding_medium"
+                android:text="@string/ok_button"
+                android:visibility="invisible"
+                />
         </LinearLayout>
-
     </LinearLayout>
-    <Button
-        android:id="@+id/save_button"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_gravity="bottom|end"
-        android:text="@string/ok_button"
-        android:visibility="invisible"
-        />
 </LinearLayout>

@@ -18,6 +18,8 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.bumptech.glide.Glide;
+import com.google.zxing.integration.android.IntentIntegrator;
+import com.google.zxing.integration.android.IntentResult;
 import com.squareup.okhttp.Response;
 
 import org.json.JSONException;
@@ -25,6 +27,7 @@ import org.json.JSONException;
 import java.io.IOException;
 
 import it.jaschke.alexandria.R;
+import it.jaschke.alexandria.activities.CaptureActivityAlexandria;
 import it.jaschke.alexandria.connection.BookRequest;
 import it.jaschke.alexandria.interfaces.RequestCallbackListener;
 import it.jaschke.alexandria.model.Book;
@@ -74,6 +77,7 @@ public class AddBookFragment extends Fragment{
         rootView.findViewById(R.id.scan_button).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                /*
                 // This is the callback method that the system will invoke when your button is
                 // clicked. You might do this by launching another app or by including the
                 //functionality directly in this app.
@@ -82,6 +86,14 @@ public class AddBookFragment extends Fragment{
                 //when you're done, remove the toast below.
                 CharSequence text = "This button should let you scan a book for its barcode!";
                 Snackbar.make(rootView, text, Snackbar.LENGTH_SHORT).show();
+                */
+
+                IntentIntegrator intentIntegrator =
+                        IntentIntegrator.forSupportFragment(AddBookFragment.this);
+                intentIntegrator.setCaptureActivity(CaptureActivityAlexandria.class);
+                intentIntegrator.setOrientationLocked(false);
+                intentIntegrator.setPrompt(getString(R.string.scan_prompt));
+                intentIntegrator.initiateScan();
             }
         });
 
@@ -108,6 +120,17 @@ public class AddBookFragment extends Fragment{
         }
 
         return rootView;
+    }
+
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        IntentResult scanningResult = IntentIntegrator.parseActivityResult(requestCode, resultCode,
+                data);
+        if(scanningResult != null)
+        {
+            Snackbar.make(rootView, scanningResult.getContents(), Snackbar.LENGTH_LONG).show();
+        }
     }
 
     private void searchBook(String eanString)
@@ -164,6 +187,9 @@ public class AddBookFragment extends Fragment{
         filled = true;
         String bookTitle = book.getTitle();
         ((TextView) rootView.findViewById(R.id.bookTitle)).setText(bookTitle);
+
+        String bookDescription = book.getDescription();
+        ((TextView) rootView.findViewById(R.id.tvDesc)).setText(bookDescription);
 
         String bookSubTitle = book.getSubtitle();
         ((TextView) rootView.findViewById(R.id.bookSubTitle)).setText(bookSubTitle);
