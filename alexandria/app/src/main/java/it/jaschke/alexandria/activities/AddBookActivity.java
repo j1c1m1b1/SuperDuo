@@ -21,13 +21,34 @@ public class AddBookActivity extends AppCompatActivity {
 
     private MessageReceiver messageReceiver;
 
+    private String ean;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_add_book);
         setTitle(R.string.scan);
-        fragment = (AddBookFragment) getSupportFragmentManager().findFragmentById(R.id.fragmentAdd);
 
+        getEan(savedInstanceState);
+
+        fragment = (AddBookFragment) getSupportFragmentManager().findFragmentById(R.id.fragmentAdd);
+        if(!fragment.isFilled())
+        {
+            fragment.searchBook(ean);
+        }
+    }
+
+    private void getEan(Bundle savedInstanceState)
+    {
+        if(savedInstanceState != null && savedInstanceState.containsKey(Constants.EAN))
+        {
+            ean = savedInstanceState.getString(Constants.EAN);
+        }
+        Intent intent = getIntent();
+        if(ean == null && intent != null && intent.hasExtra(Constants.EAN))
+        {
+            ean = intent.getStringExtra(Constants.EAN);
+        }
     }
 
     @Override
@@ -39,27 +60,9 @@ public class AddBookActivity extends AppCompatActivity {
     }
 
     @Override
-    public void onBackPressed() {
-        if(fragment.isFilled())
-        {
-            fragment.clearFields();
-        }
-        else
-        {
-            super.onBackPressed();
-        }
-    }
-
-    @Override
     protected void onStop() {
         super.onStop();
         LocalBroadcastManager.getInstance(this).unregisterReceiver(messageReceiver);
-    }
-
-    @Override
-    protected void onDestroy() {
-        super.onDestroy();
-
     }
 
     private class MessageReceiver extends BroadcastReceiver {

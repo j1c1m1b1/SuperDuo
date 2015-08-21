@@ -31,9 +31,7 @@ import it.jaschke.alexandria.util.Constants;
 
 public class BookDetailFragment extends Fragment implements LoaderManager.LoaderCallbacks<Cursor> {
 
-    public static final String EAN_KEY = "EAN";
-    private static final String BOOK = "book";
-    private static final int LOADER_ID = 10;
+
     private View rootView;
     private String ean;
 
@@ -47,9 +45,9 @@ public class BookDetailFragment extends Fragment implements LoaderManager.Loader
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setHasOptionsMenu(true);
-        if(savedInstanceState != null && savedInstanceState.containsKey(BOOK))
+        if(savedInstanceState != null && savedInstanceState.containsKey(Constants.BOOK))
         {
-            book = savedInstanceState.getParcelable(BOOK);
+            book = savedInstanceState.getParcelable(Constants.BOOK);
         }
     }
 
@@ -60,10 +58,10 @@ public class BookDetailFragment extends Fragment implements LoaderManager.Loader
         Bundle arguments = getArguments();
 
         if (arguments != null) {
-            ean = arguments.getString(BookDetailFragment.EAN_KEY);
+            ean = arguments.getString(Constants.EAN_KEY);
             if(book == null)
             {
-                getLoaderManager().initLoader(LOADER_ID, null, this);
+                getLoaderManager().initLoader(Constants.DETAIL_LOADER_ID, null, this);
             }
         }
 
@@ -198,6 +196,6 @@ public class BookDetailFragment extends Fragment implements LoaderManager.Loader
     @Override
     public void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
-        outState.putParcelable(BOOK, book);
+        outState.putParcelable(Constants.BOOK, book);
     }
 }

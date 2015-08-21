@@ -27,20 +27,16 @@ import it.jaschke.alexandria.util.Constants;
  */
 public class BookRequest
 {
-    private static final String FORECAST_BASE_URL = "https://www.googleapis.com/books/v1/volumes";
-    private static final String QUERY_PARAM = "q";
-    private static final String ISBN_PARAM = "isbn:%s";
-
     private static final OkHttpClient client = new OkHttpClient();
 
     public static void fetchBook(final String ean, final RequestCallbackListener listener)
     {
-        String param = String.format(ISBN_PARAM, ean);
+        String param = String.format(Constants.ISBN_PARAM, ean);
 
-        HttpUrl url = HttpUrl.parse(FORECAST_BASE_URL);
+        HttpUrl url = HttpUrl.parse(Constants.FORECAST_BASE_URL);
 
         url = url.newBuilder()
-                .addQueryParameter(QUERY_PARAM, param)
+                .addQueryParameter(Constants.QUERY_PARAM, param)
                 .build();
 
         Request request = new Request.Builder()
@@ -66,9 +62,7 @@ public class BookRequest
         Book book;
 
         final String ITEMS = "items";
-
         final String VOLUME_INFO = "volumeInfo";
-
         final String TITLE = "title";
         final String SUBTITLE = "subtitle";
         final String AUTHORS = "authors";
@@ -105,7 +99,6 @@ public class BookRequest
             String authors = getAuthorsOfBook(bookInfo, AUTHORS);
 
             String categories = getCategoriesOfBook(bookInfo, CATEGORIES);
-
 
             book = new Book(title, subtitle, desc, authors, thumbnail, categories);
             return book;

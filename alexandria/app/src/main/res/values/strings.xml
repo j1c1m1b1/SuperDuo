@@ -8,7 +8,7 @@
     <string name="about">About this App</string>
 
     <string name="scan_button">Scan</string>
-    <string name="input_hint">Insert ISBN-13. Digits only.</string>
+    <string name="input_hint">Insert ISBN-13</string>
     <string name="book_cover">Book cover</string>
 
     <string name="ok_button">Add Book</string>
@@ -27,4 +27,6 @@
     <string name="action_about">About</string>
     <string name="no_desc_available">No description available</string>
     <string name="scan_prompt">Center the barcode in the rectangle to scan</string>
+    <string name="no_data">No scan data received!</string>
+    <string name="incorrect_format">The barcode format is not valid!</string>
 </resources>

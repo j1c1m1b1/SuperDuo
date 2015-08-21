@@ -29,7 +29,7 @@
                 android:resource="@xml/searchable"/>
         </activity>
         <activity
-            android:name=".AboutActivity"
+            android:name=".activities.AboutActivity"
             android:label="@string/action_about" >
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"

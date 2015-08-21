@@ -12,29 +12,30 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 
-import it.jaschke.alexandria.AboutActivity;
 import it.jaschke.alexandria.R;
 import it.jaschke.alexandria.api.Callback;
 import it.jaschke.alexandria.fragments.BookDetailFragment;
+import it.jaschke.alexandria.fragments.ISBNDialogFragment;
 import it.jaschke.alexandria.fragments.ListOfBooksFragment;
+import it.jaschke.alexandria.util.Constants;
 
 
-public class MainActivity extends AppCompatActivity implements Callback {
-
-    private static final String ADDED = "added";
+public class MainActivity extends AppCompatActivity implements Callback,
+        ISBNDialogFragment.OnDialogOkListener {
 
     public static boolean IS_TABLET = false;
 
     private boolean added;
     private ListOfBooksFragment listFragment;
+    private ISBNDialogFragment dialogFragment;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        if(savedInstanceState != null && savedInstanceState.containsKey(ADDED))
+        if(savedInstanceState != null && savedInstanceState.containsKey(Constants.ADDED))
         {
-            added = savedInstanceState.getBoolean(ADDED);
+            added = savedInstanceState.getBoolean(Constants.ADDED);
         }
         IS_TABLET = isTablet();
         if(IS_TABLET){
@@ -69,9 +70,15 @@ public class MainActivity extends AppCompatActivity implements Callback {
             if(findViewById(R.id.right_container) != null){
                 id = R.id.right_container;
             }
+
+            transaction.replace(id, listFragment, Constants.LIST_BOOKS);
             transaction.replace(id, listFragment)
                     .commit();
             added = true;
+        }
+        else
+        {
+            listFragment = (ListOfBooksFragment) manager.findFragmentByTag(Constants.LIST_BOOKS);
         }
     }
 
@@ -123,7 +130,7 @@ public class MainActivity extends AppCompatActivity implements Callback {
     @Override
     public void onItemSelected(String ean, String bookTitle) {
         Bundle args = new Bundle();
-        args.putString(BookDetailFragment.EAN_KEY, ean);
+        args.putString(Constants.EAN_KEY, ean);
 
         BookDetailFragment fragment = new BookDetailFragment();
         fragment.setArguments(args);
@@ -140,6 +147,12 @@ public class MainActivity extends AppCompatActivity implements Callback {
 
     }
 
+    public void isbnDialog()
+    {
+        dialogFragment = new ISBNDialogFragment();
+        dialogFragment.show(getSupportFragmentManager(), Constants.DIALOG);
+    }
+
     private boolean isTablet() {
         return (getApplicationContext().getResources().getConfiguration().screenLayout
                 & Configuration.SCREENLAYOUT_SIZE_MASK)
@@ -149,7 +162,23 @@ public class MainActivity extends AppCompatActivity implements Callback {
     @Override
     protected void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
-        outState.putBoolean(ADDED, added);
+        outState.putBoolean(Constants.ADDED, added);
     }
 
+    @Override
+    public void onBackPressed() {
+        if(listFragment != null && listFragment.isVisible() && listFragment.isChooseActionVisible())
+        {
+            listFragment.hideChooseActionLayout();
+        }
+        else
+        {
+            super.onBackPressed();
+        }
+    }
+
+    @Override
+    public void onOK(String ean) {
+        listFragment.goToAdd(ean);
+    }
 }
