@@ -224,17 +224,19 @@ public class BookProvider extends ContentProvider {
                 break;
             }
             case AUTHOR:{
+                long id = values.getAsLong("_id");
                 long _id = db.insert(AlexandriaContract.AuthorEntry.TABLE_NAME, null, values);
                 if ( _id > 0 )
-                    returnUri = AlexandriaContract.AuthorEntry.buildAuthorUri(values.getAsLong("_id"));
+                    returnUri = AlexandriaContract.AuthorEntry.buildAuthorUri(id);
                 else
                     throw new android.database.SQLException("Failed to insert row into " + uri);
                 break;
             }
             case CATEGORY: {
+                long id = values.getAsLong("_id");
                 long _id = db.insert(AlexandriaContract.CategoryEntry.TABLE_NAME, null, values);
                 if (_id > 0)
-                    returnUri = AlexandriaContract.CategoryEntry.buildCategoryUri(values.getAsLong("_id"));
+                    returnUri = AlexandriaContract.CategoryEntry.buildCategoryUri(id);
                 else
                     throw new android.database.SQLException("Failed to insert row into " + uri);
                 break;
@@ -250,6 +252,7 @@ public class BookProvider extends ContentProvider {
         final SQLiteDatabase db = dbHelper.getWritableDatabase();
         final int match = uriMatcher.match(uri);
         int rowsDeleted;
+        selection = selection == null ? "1" : selection;
         switch (match) {
             case BOOK:
                 rowsDeleted = db.delete(
@@ -265,15 +268,13 @@ public class BookProvider extends ContentProvider {
                 break;
             case BOOK_ID:
                 rowsDeleted = db.delete(
-                        AlexandriaContract.BookEntry.TABLE_NAME,
-                        AlexandriaContract.BookEntry._ID + " = '" + ContentUris.parseId(uri) + "'",
-                        selectionArgs);
+                        AlexandriaContract.BookEntry.TABLE_NAME, selection, selectionArgs);
                 break;
             default:
                 throw new UnsupportedOperationException("Unknown uri: " + uri);
         }
         // Because a null deletes all rows
-        if (selection == null || rowsDeleted != 0) {
+        if (rowsDeleted != 0) {
             if(getContext() != null)
             {
                 getContext().getContentResolver().notifyChange(uri, null);

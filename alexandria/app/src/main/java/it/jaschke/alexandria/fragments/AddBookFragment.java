@@ -2,22 +2,21 @@ package it.jaschke.alexandria.fragments;
 
 import android.content.Intent;
 import android.os.Bundle;
-import android.support.annotation.UiThread;
+import android.support.annotation.Nullable;
 import android.support.design.widget.Snackbar;
 import android.support.v4.app.Fragment;
+import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.Toolbar;
 import android.util.Patterns;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.FrameLayout;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import com.bumptech.glide.Glide;
-import com.squareup.okhttp.Response;
-
-import org.json.JSONException;
-
-import java.io.IOException;
 
 import it.jaschke.alexandria.R;
 import it.jaschke.alexandria.connection.BookRequest;
@@ -25,12 +24,19 @@ import it.jaschke.alexandria.interfaces.RequestCallbackListener;
 import it.jaschke.alexandria.model.Book;
 import it.jaschke.alexandria.services.BookService;
 import it.jaschke.alexandria.util.Constants;
+import it.jaschke.alexandria.util.ServerStatus;
 
 
 public class AddBookFragment extends Fragment{
 
     private View rootView;
+    private LinearLayout layoutBook;
+    private FrameLayout layoutDisconnected;
+    private FrameLayout layoutNotFound;
+    private FrameLayout layoutLoading;
     private Book book;
+    private int status = -1;
+    private String ean;
 
     public AddBookFragment(){
     }
@@ -42,12 +48,19 @@ public class AddBookFragment extends Fragment{
         {
             outState.putParcelable(Constants.BOOK, book);
         }
+        if(status != -1)
+        {
+            outState.putInt(Constants.STATUS, status);
+        }
     }
 
     @Override
     public View onCreateView(final LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
 
         rootView = inflater.inflate(R.layout.fragment_add_book, container, false);
+
+        Toolbar toolbar = (Toolbar) rootView.findViewById(R.id.toolbar);
+        ((AppCompatActivity)getActivity()).setSupportActionBar(toolbar);
 
         rootView.findViewById(R.id.save_button).setOnClickListener(new View.OnClickListener() {
             @Override
@@ -56,16 +69,26 @@ public class AddBookFragment extends Fragment{
                     Intent bookIntent = new Intent(getActivity(), BookService.class);
                     bookIntent.setAction(Constants.SAVE_BOOK);
                     bookIntent.putExtra(Constants.BOOK, book);
+                    bookIntent.putExtra(Constants.EAN, ean);
                     getActivity().startService(bookIntent);
                 }
             }
         });
+
+        layoutBook = (LinearLayout) rootView.findViewById(R.id.layoutBook);
+        layoutDisconnected = (FrameLayout)rootView.findViewById(R.id.layoutDisconnected);
+        layoutNotFound = (FrameLayout)rootView.findViewById(R.id.layoutNotFound);
+        layoutLoading = (FrameLayout)rootView.findViewById(R.id.layoutLoading);
 
         if(savedInstanceState != null)
         {
             if(savedInstanceState.containsKey(Constants.BOOK))
             {
                 book = savedInstanceState.getParcelable(Constants.BOOK);
+            }
+            if(savedInstanceState.containsKey(Constants.STATUS))
+            {
+                status = savedInstanceState.getInt(Constants.STATUS);
                 refreshUI();
             }
         }
@@ -73,7 +96,20 @@ public class AddBookFragment extends Fragment{
         return rootView;
     }
 
-    public void searchBook(String eanString)
+    public void setEan(String ean) {
+        this.ean = ean;
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        if(status == -1)
+        {
+            searchBook(ean);
+        }
+    }
+
+    private void searchBook(String eanString)
     {
         if (eanString.length() == 10 && !eanString.startsWith("978")) {
             eanString = "978" + eanString;
@@ -82,50 +118,52 @@ public class AddBookFragment extends Fragment{
         {
             RequestCallbackListener listener = new RequestCallbackListener() {
                 @Override
-                public void onFail() {
-                    //TODO Connection error.
+                public void onResponse(@Nullable Book book, @ServerStatus.BookStatus final int status)
+                {
+                    AddBookFragment.this.status = status;
+                    AddBookFragment.this.book = book;
+                    getActivity().runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            refreshUI();
+                        }
+                    });
                 }
 
-                @Override
-                public void onSuccess(Response response)
-                {
-                    try
-                    {
-                        String bookJsonString = response.body().string();
-                        book = BookRequest.JSONToBook(bookJsonString, getActivity());
-                        if(book != null)
-                        {
-                            getActivity().runOnUiThread(new Runnable() {
-                                @Override
-                                public void run() {
-                                    refreshUI();
-                                }
-                            });
-                        }
-                    }
-                    catch (IOException e)
-                    {
-                        e.printStackTrace();
-                    }
-                    catch (JSONException e) {
-                        //TODO Bad server response
-                        e.printStackTrace();
-                    }
-                }
             };
             BookRequest.fetchBook(eanString, listener);
         }
     }
 
-    @UiThread
     public void refreshUI()
+    {
+        layoutLoading.setVisibility(View.GONE);
+        switch (status)
+        {
+            case ServerStatus.BOOK_SERVER_STATUS_INVALID:
+            case ServerStatus.BOOK_SERVER_STATUS_DOWN:
+                layoutDisconnected.setVisibility(View.VISIBLE);
+                break;
+            case ServerStatus.BOOK_STATUS_NOT_FOUND:
+                layoutNotFound.setVisibility(View.VISIBLE);
+                break;
+            case ServerStatus.BOOK_STATUS_SUCCESS:
+                layoutBook.setVisibility(View.VISIBLE);
+                fillBookInfo();
+                break;
+            default:
+                break;
+        }
+
+    }
+
+    private void fillBookInfo()
     {
         String bookTitle = book.getTitle();
         ((TextView) rootView.findViewById(R.id.bookTitle)).setText(bookTitle);
 
         String bookDescription = book.getDescription();
         ((TextView) rootView.findViewById(R.id.tvDesc)).setText(bookDescription);
-        rootView.findViewById(R.id.tvDesc).setVisibility(View.VISIBLE);
 
         String bookSubTitle = book.getSubtitle();
         ((TextView) rootView.findViewById(R.id.bookSubTitle)).setText(bookSubTitle);
@@ -135,39 +173,32 @@ public class AddBookFragment extends Fragment{
         {
             String[] authorsArr = authors.split(",");
             ((TextView) rootView.findViewById(R.id.authors)).setLines(authorsArr.length);
-            ((TextView) rootView.findViewById(R.id.authors)).setText(authors.replace(",","\n"));
+            ((TextView) rootView.findViewById(R.id.authors)).setText(authors.replace(",", "\n"));
         }
         String imgUrl = book.getThumbnail();
         if(Patterns.WEB_URL.matcher(imgUrl).matches()){
             ImageView bookCover = (ImageView) rootView.findViewById(R.id.bookCover);
-
             Glide.with(this).load(imgUrl).placeholder(R.drawable.placeholder).into(bookCover);
         }
-        rootView.findViewById(R.id.bookCover).setVisibility(View.VISIBLE);
 
         String categories = book.getCategories();
         ((TextView) rootView.findViewById(R.id.categories)).setText(categories);
-
-        rootView.findViewById(R.id.save_button).setVisibility(View.VISIBLE);
-    }
-
-    public void clearFields()
-    {
-        ((TextView) rootView.findViewById(R.id.bookTitle)).setText("");
-        ((TextView) rootView.findViewById(R.id.bookSubTitle)).setText("");
-        ((TextView) rootView.findViewById(R.id.authors)).setText("");
-        ((TextView) rootView.findViewById(R.id.categories)).setText("");
-        rootView.findViewById(R.id.tvDesc).setVisibility(View.INVISIBLE);
-        rootView.findViewById(R.id.bookCover).setVisibility(View.INVISIBLE);
-        rootView.findViewById(R.id.save_button).setVisibility(View.INVISIBLE);
-    }
-
-    public boolean isFilled() {
-        return book != null;
     }
 
     public void showSnackBar(String message)
     {
-        Snackbar.make(rootView, message, Snackbar.LENGTH_SHORT).show();
+        Snackbar snackbar = Snackbar.make(rootView, message, Snackbar.LENGTH_SHORT);
+
+        snackbar.setCallback(new Snackbar.Callback() {
+            @Override
+            public void onDismissed(Snackbar snackbar, int event) {
+                super.onDismissed(snackbar, event);
+                if (event == DISMISS_EVENT_SWIPE || event == DISMISS_EVENT_TIMEOUT) {
+                    getActivity().finish();
+                }
+            }
+        });
+
+        snackbar.show();
     }
 }

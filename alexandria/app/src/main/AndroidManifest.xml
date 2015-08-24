@@ -35,7 +35,11 @@
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value=".activities.MainActivity" />
         </activity>
-        <activity android:name=".activities.AddBookActivity"/>
+        <activity android:name=".activities.AddBookActivity">
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value=".activities.MainActivity" />
+        </activity>
         <activity android:name=".activities.CaptureActivityAlexandria"
             android:screenOrientation="fullSensor"
             android:stateNotNeeded="true"

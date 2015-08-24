@@ -4,9 +4,11 @@ import android.content.Intent;
 import android.database.Cursor;
 import android.os.Build;
 import android.os.Bundle;
+import android.support.design.widget.Snackbar;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.CursorLoader;
+import android.support.v4.content.Loader;
 import android.support.v4.view.MenuItemCompat;
 import android.support.v7.widget.ShareActionProvider;
 import android.util.Patterns;
@@ -20,9 +22,12 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.bumptech.glide.Glide;
+import com.squareup.otto.Subscribe;
 
 import it.jaschke.alexandria.R;
 import it.jaschke.alexandria.activities.MainActivity;
+import it.jaschke.alexandria.bus.BusProvider;
+import it.jaschke.alexandria.bus.events.DatabaseChangedEvent;
 import it.jaschke.alexandria.data.AlexandriaContract;
 import it.jaschke.alexandria.model.Book;
 import it.jaschke.alexandria.services.BookService;
@@ -73,7 +78,6 @@ public class BookDetailFragment extends Fragment implements LoaderManager.Loader
                 bookIntent.putExtra(Constants.EAN, ean);
                 bookIntent.setAction(Constants.DELETE_BOOK);
                 getActivity().startService(bookIntent);
-                getActivity().getSupportFragmentManager().popBackStack();
             }
         });
         return rootView;
@@ -87,6 +91,18 @@ public class BookDetailFragment extends Fragment implements LoaderManager.Loader
             getActivity().invalidateOptionsMenu();
             refreshUi();
         }
+    }
+
+    @Override
+    public void onStart() {
+        super.onStart();
+        BusProvider.getInstance().register(this);
+    }
+
+    @Override
+    public void onStop() {
+        super.onStop();
+        BusProvider.getInstance().unregister(this);
     }
 
     @Override
@@ -128,8 +144,27 @@ public class BookDetailFragment extends Fragment implements LoaderManager.Loader
         );
     }
 
+    @Subscribe
+    public void databaseChanged(DatabaseChangedEvent event)
+    {
+        Snackbar snackbar = Snackbar.make(rootView, event.getMessage(), Snackbar.LENGTH_SHORT);
+
+        snackbar.setCallback(new Snackbar.Callback() {
+            @Override
+            public void onDismissed(Snackbar snackbar, int event) {
+                super.onDismissed(snackbar, event);
+                if(event == DISMISS_EVENT_SWIPE || event == DISMISS_EVENT_TIMEOUT)
+                {
+                    getActivity().getSupportFragmentManager().popBackStack();
+                }
+            }
+        });
+
+        snackbar.show();
+    }
+
     @Override
-    public void onLoadFinished(android.support.v4.content.Loader<Cursor> loader, Cursor data) {
+    public void onLoadFinished(Loader<Cursor> loader, Cursor data) {
         if (!data.moveToFirst()) {
             return;
         }
@@ -174,14 +209,14 @@ public class BookDetailFragment extends Fragment implements LoaderManager.Loader
 
             ImageView fullBookCover = (ImageView)rootView.findViewById(R.id.fullBookCover);
 
-            Glide.with(this).load(imgUrl).placeholder(R.drawable.ic_launcher).into(fullBookCover);
+            Glide.with(this).load(imgUrl).placeholder(R.drawable.placeholder).into(fullBookCover);
         }
 
         ((TextView) rootView.findViewById(R.id.categories)).setText(categories);
     }
 
     @Override
-    public void onLoaderReset(android.support.v4.content.Loader<Cursor> loader) {
+    public void onLoaderReset(Loader<Cursor> loader) {
 
     }
 

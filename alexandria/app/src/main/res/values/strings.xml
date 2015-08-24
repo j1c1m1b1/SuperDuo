@@ -29,4 +29,6 @@
     <string name="scan_prompt">Center the barcode in the rectangle to scan</string>
     <string name="no_data">No scan data received!</string>
     <string name="incorrect_format">The barcode format is not valid!</string>
+    <string name="error_server">There was an error contacting the server</string>
+    <string name="book_deleted">Book deleted</string>
 </resources>

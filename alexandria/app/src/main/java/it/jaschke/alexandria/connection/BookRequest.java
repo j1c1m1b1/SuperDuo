@@ -1,8 +1,5 @@
 package it.jaschke.alexandria.connection;
 
-import android.content.Context;
-import android.content.Intent;
-import android.support.v4.content.LocalBroadcastManager;
 import android.util.Log;
 
 import com.squareup.okhttp.Callback;
@@ -17,10 +14,10 @@ import org.json.JSONObject;
 
 import java.io.IOException;
 
-import it.jaschke.alexandria.R;
 import it.jaschke.alexandria.interfaces.RequestCallbackListener;
 import it.jaschke.alexandria.model.Book;
 import it.jaschke.alexandria.util.Constants;
+import it.jaschke.alexandria.util.ServerStatus;
 
 /**
  * @author Julio Mendoza on 8/18/15.
@@ -46,18 +43,29 @@ public class BookRequest
         client.newCall(request).enqueue(new Callback() {
             @Override
             public void onFailure(Request request, IOException e) {
-                listener.onFail();
+                listener.onResponse(null, ServerStatus.BOOK_SERVER_STATUS_DOWN);
             }
 
             @Override
             public void onResponse(Response response) throws IOException
             {
-                listener.onSuccess(response);
+                try {
+                    int status = ServerStatus.BOOK_STATUS_NOT_FOUND;
+                    Book book = JSONToBook(response.body().string());
+                    if(book != null)
+                    {
+                        status = ServerStatus.BOOK_STATUS_SUCCESS;
+                    }
+                    listener.onResponse(book, status);
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                    listener.onResponse(null, ServerStatus.BOOK_SERVER_STATUS_INVALID);
+                }
             }
         });
     }
 
-    public static Book JSONToBook(String bookJsonString, Context context) throws JSONException
+    public static Book JSONToBook(String bookJsonString) throws JSONException
     {
         Book book;
 
@@ -102,13 +110,8 @@ public class BookRequest
 
             book = new Book(title, subtitle, desc, authors, thumbnail, categories);
             return book;
-        }else{
-            Intent messageIntent = new Intent(Constants.MESSAGE_EVENT);
-            messageIntent.putExtra(Constants.MESSAGE_KEY, context.getString(R.string.no_books_found));
-            LocalBroadcastManager.getInstance(context.getApplicationContext())
-                    .sendBroadcast(messageIntent);
-            return null;
         }
+        return null;
     }
 
     private static String getAuthorsOfBook(JSONObject bookInfo, String AUTHORS) throws JSONException
@@ -119,7 +122,7 @@ public class BookRequest
             JSONArray jsonArray = bookInfo.getJSONArray(AUTHORS);
             for (int i = 0; i < jsonArray.length(); i++)
             {
-                if(i < jsonArray.length() - 1)
+                if(i == jsonArray.length() - 1)
                 {
                     authors += jsonArray.getString(i);
                 }
@@ -140,7 +143,7 @@ public class BookRequest
             JSONArray jsonArray = bookInfo.getJSONArray(CATEGORIES);
             for (int i = 0; i < jsonArray.length(); i++)
             {
-                if(i < jsonArray.length() - 1)
+                if(i == jsonArray.length() - 1)
                 {
                     categories += jsonArray.getString(i);
                 }

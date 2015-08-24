@@ -26,11 +26,11 @@ public class Constants {
 
     //Book Detail
     public static final String EAN_KEY = "EAN";
-    public static final int DETAIL_LOADER_ID = 10;
+    public static final int DETAIL_LOADER_ID = 20;
     public static final String QUERY = "query";
     public static final int BOOKS_LOADER_ID = 10;
     //Animation
     public static final long DEFAULT_DURATION = 500;
     //Add Book
-    private static final String EAN_CONTENT="eanContent";
+    public static final String STATUS = "status";
 }

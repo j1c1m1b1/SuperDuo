@@ -40,6 +40,8 @@ public class AlexandriaContract{
 
         public static final String DESC = "description";
 
+        public static final String EAN = "ean";
+
         public static Uri buildBookUri(long id) {
             return ContentUris.withAppendedId(CONTENT_URI, id);
         }

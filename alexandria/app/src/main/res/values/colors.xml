@@ -4,5 +4,6 @@
     <color name="purple_dark">#7B1FA2</color>
     <color name="indigo_accent">#8C9EFF</color>
     <color name="text_gray">#607D8B</color>
-    <color name="white">#A6FFFFFF</color>
+    <color name="alpha_white">#A6FFFFFF</color>
+    <color name="white">#FFFFFF</color>
 </resources>

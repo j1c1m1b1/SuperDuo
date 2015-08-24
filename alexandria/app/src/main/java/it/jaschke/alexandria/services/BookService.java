@@ -3,9 +3,12 @@ package it.jaschke.alexandria.services;
 import android.app.IntentService;
 import android.content.ContentValues;
 import android.content.Intent;
-import android.support.v4.content.LocalBroadcastManager;
+import android.database.Cursor;
+import android.net.Uri;
 
 import it.jaschke.alexandria.R;
+import it.jaschke.alexandria.bus.BusProvider;
+import it.jaschke.alexandria.bus.events.DatabaseChangedEvent;
 import it.jaschke.alexandria.data.AlexandriaContract;
 import it.jaschke.alexandria.model.Book;
 import it.jaschke.alexandria.util.Constants;
@@ -17,8 +20,6 @@ import it.jaschke.alexandria.util.Constants;
  * <p/>
  */
 public class BookService extends IntentService {
-
-    private final String LOG_TAG = BookService.class.getSimpleName();
 
     public BookService() {
         super("Alexandria");
@@ -51,16 +52,31 @@ public class BookService extends IntentService {
         String authors = book.getAuthors();
         String categories = book.getCategories();
 
-        writeBackBook(ean, title, subtitle, description,
-                thumbnail);
+        Uri uri = AlexandriaContract.BookEntry.CONTENT_URI;
 
-        saveAuthors(ean, authors);
+        String where = AlexandriaContract.BookEntry.EAN + " LIKE ?";
+        String[] args = new String[]{ean};
+        Cursor cursor = getContentResolver().query(uri, new String[]{AlexandriaContract.BookEntry._ID}, where, args, null);
 
-        saveCategories(ean, categories);
+        if(cursor == null || cursor.getCount() == 0)
+        {
+            try
+            {
+                cursor.close();
+            }
+            catch (NullPointerException e)
+            {
+                e.printStackTrace();
+            }
+            writeBackBook(ean, title, subtitle, description,
+                    thumbnail);
 
-        Intent messageIntent = new Intent(Constants.MESSAGE_EVENT);
-        messageIntent.putExtra(Constants.MESSAGE_KEY,getResources().getString(R.string.book_saved));
-        LocalBroadcastManager.getInstance(getApplicationContext()).sendBroadcast(messageIntent);
+            saveAuthors(ean, authors);
+
+            saveCategories(ean, categories);
+
+            BusProvider.postOnMain(new DatabaseChangedEvent(getString(R.string.book_saved)));
+        }
     }
 
     private void saveAuthors(String ean, String authors)
@@ -83,6 +99,8 @@ public class BookService extends IntentService {
             }
             else
             {
+                v.put(AlexandriaContract.AuthorEntry._ID, ean);
+                v.put(AlexandriaContract.AuthorEntry.AUTHOR, authors.trim());
                 getContentResolver().insert(AlexandriaContract.AuthorEntry.CONTENT_URI, v);
             }
         }
@@ -99,8 +117,8 @@ public class BookService extends IntentService {
                 ContentValues[] values = new ContentValues[categoriesList.length];
                 for(int i = 0; i < categoriesList.length; i ++)
                 {
-                    v.put(AlexandriaContract.AuthorEntry._ID, ean);
-                    v.put(AlexandriaContract.AuthorEntry.AUTHOR, categoriesList[i]);
+                    v.put(AlexandriaContract.CategoryEntry._ID, ean);
+                    v.put(AlexandriaContract.CategoryEntry.CATEGORY, categoriesList[i].trim());
                     values[i] = v;
                     v.clear();
                 }
@@ -108,18 +126,21 @@ public class BookService extends IntentService {
             }
             else
             {
+                v.put(AlexandriaContract.CategoryEntry._ID, ean);
+                v.put(AlexandriaContract.CategoryEntry.CATEGORY, categories.trim());
                 getContentResolver().insert(AlexandriaContract.CategoryEntry.CONTENT_URI, v);
             }
         }
     }
 
-    /**
-     * Handle action Foo in the provided background thread with the provided
-     * parameters.
-     */
     private void deleteBook(String ean) {
         if(ean!=null) {
-            getContentResolver().delete(AlexandriaContract.BookEntry.buildBookUri(Long.parseLong(ean)), null, null);
+            String where = AlexandriaContract.BookEntry._ID + " = ?";
+            String[] args = new String[]{ean};
+            getContentResolver().delete(AlexandriaContract.BookEntry.buildBookUri(Long.parseLong(ean)),
+                    where, args);
+
+            BusProvider.postOnMain(new DatabaseChangedEvent(getString(R.string.book_deleted)));
         }
     }
 

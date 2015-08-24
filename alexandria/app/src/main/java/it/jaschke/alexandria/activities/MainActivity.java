@@ -5,10 +5,9 @@ import android.content.Intent;
 import android.content.res.Configuration;
 import android.os.Bundle;
 import android.support.v4.app.FragmentManager;
-import android.support.v4.app.FragmentTransaction;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.SearchView;
-import android.util.Log;
+import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
 
@@ -25,18 +24,13 @@ public class MainActivity extends AppCompatActivity implements Callback,
 
     public static boolean IS_TABLET = false;
 
-    private boolean added;
     private ListOfBooksFragment listFragment;
-    private ISBNDialogFragment dialogFragment;
 
     @Override
-    protected void onCreate(Bundle savedInstanceState) {
+    protected void onCreate(Bundle savedInstanceState)
+    {
         super.onCreate(savedInstanceState);
 
-        if(savedInstanceState != null && savedInstanceState.containsKey(Constants.ADDED))
-        {
-            added = savedInstanceState.getBoolean(Constants.ADDED);
-        }
         IS_TABLET = isTablet();
         if(IS_TABLET){
             setContentView(R.layout.activity_main_tablet);
@@ -44,13 +38,15 @@ public class MainActivity extends AppCompatActivity implements Callback,
             setContentView(R.layout.activity_main);
         }
 
+        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
+        setSupportActionBar(toolbar);
+
         final FragmentManager manager = getSupportFragmentManager();
 
         manager.addOnBackStackChangedListener(new FragmentManager.OnBackStackChangedListener() {
             @Override
             public void onBackStackChanged() {
                 int count = manager.getBackStackEntryCount();
-                Log.d(MainActivity.class.getSimpleName(), "Backstack count: " + count);
                 if(count == 0)
                 {
                     setTitle(R.string.books);
@@ -58,28 +54,7 @@ public class MainActivity extends AppCompatActivity implements Callback,
             }
         });
 
-        if(!added)
-        {
-            setTitle(R.string.books);
-
-            listFragment = new ListOfBooksFragment();
-
-            FragmentTransaction transaction = manager.beginTransaction();
-
-            int id = R.id.container;
-            if(findViewById(R.id.right_container) != null){
-                id = R.id.right_container;
-            }
-
-            transaction.replace(id, listFragment, Constants.LIST_BOOKS);
-            transaction.replace(id, listFragment)
-                    .commit();
-            added = true;
-        }
-        else
-        {
-            listFragment = (ListOfBooksFragment) manager.findFragmentByTag(Constants.LIST_BOOKS);
-        }
+        listFragment = (ListOfBooksFragment) manager.findFragmentByTag(Constants.LIST_BOOKS);
     }
 
     @Override
@@ -123,11 +98,6 @@ public class MainActivity extends AppCompatActivity implements Callback,
     }
 
     @Override
-    protected void onDestroy() {
-        super.onDestroy();
-    }
-
-    @Override
     public void onItemSelected(String ean, String bookTitle) {
         Bundle args = new Bundle();
         args.putString(Constants.EAN_KEY, ean);
@@ -149,7 +119,7 @@ public class MainActivity extends AppCompatActivity implements Callback,
 
     public void isbnDialog()
     {
-        dialogFragment = new ISBNDialogFragment();
+        ISBNDialogFragment dialogFragment = new ISBNDialogFragment();
         dialogFragment.show(getSupportFragmentManager(), Constants.DIALOG);
     }
 
@@ -157,12 +127,6 @@ public class MainActivity extends AppCompatActivity implements Callback,
         return (getApplicationContext().getResources().getConfiguration().screenLayout
                 & Configuration.SCREENLAYOUT_SIZE_MASK)
                 >= Configuration.SCREENLAYOUT_SIZE_LARGE;
-    }
-
-    @Override
-    protected void onSaveInstanceState(Bundle outState) {
-        super.onSaveInstanceState(outState);
-        outState.putBoolean(Constants.ADDED, added);
     }
 
     @Override

@@ -85,6 +85,10 @@ public class ListOfBooksFragment extends Fragment implements LoaderManager.Loade
 
         bookList.setEmptyView(rootView.findViewById(R.id.emptyView));
 
+        bookListAdapter = new BookListAdapter(getActivity(), null, 0);
+
+        bookList.setAdapter(bookListAdapter);
+
         fab = (FloatingActionButton) rootView.findViewById(R.id.fab);
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -108,7 +112,7 @@ public class ListOfBooksFragment extends Fragment implements LoaderManager.Loade
         btnIsbn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                ((MainActivity)getActivity()).isbnDialog();
+                ((MainActivity) getActivity()).isbnDialog();
             }
         });
 
@@ -119,13 +123,23 @@ public class ListOfBooksFragment extends Fragment implements LoaderManager.Loade
             btnIsbn.setVisibility(View.VISIBLE);
             fab.setVisibility(View.GONE);
         }
+
         return rootView;
     }
 
     @Override
     public void onStart() {
         super.onStart();
-        getLoaderManager().initLoader(Constants.BOOKS_LOADER_ID, null, this);
+        Loader<Cursor> loader = getLoaderManager().getLoader(Constants.BOOKS_LOADER_ID);
+        if(loader == null || !loader.isStarted())
+        {
+            Log.d(ListOfBooksFragment.class.getSimpleName(), "Loader init");
+            getLoaderManager().initLoader(Constants.BOOKS_LOADER_ID, null, this);
+        }
+        else
+        {
+            getLoaderManager().restartLoader(Constants.BOOKS_LOADER_ID, null, this);
+        }
     }
 
     @Override
@@ -232,6 +246,7 @@ public class ListOfBooksFragment extends Fragment implements LoaderManager.Loade
             Bundle bundle = new Bundle();
             bundle.putString(Constants.QUERY, query);
             searching = true;
+            Log.d(ListOfBooksFragment.class.getSimpleName(), "Search");
             getLoaderManager().initLoader(Constants.BOOKS_LOADER_ID, bundle, this);
         }
     }
@@ -260,31 +275,24 @@ public class ListOfBooksFragment extends Fragment implements LoaderManager.Loade
 
     @Override
     public void onLoadFinished(Loader<Cursor> loader, Cursor data) {
-        Log.d(ListOfBooksFragment.class.getSimpleName(), "Loader finished");
-        if(data.getCount() > 0)
+        if(!data.isClosed() && data.getCount() > 0)
         {
-            if(bookListAdapter != null)
-            {
-                bookListAdapter.swapCursor(data);
-                if (position != ListView.INVALID_POSITION) {
-                    bookList.smoothScrollToPosition(position);
-                }
+            bookListAdapter.swapCursor(data);
+            if (position != ListView.INVALID_POSITION) {
+                bookList.smoothScrollToPosition(position);
             }
-            else
-            {
-                bookListAdapter = new BookListAdapter(getActivity(), data, 0);
-            }
-            bookList.setAdapter(bookListAdapter);
         }
         else if(searching)
         {
             Snackbar.make(rootView, R.string.not_found, Snackbar.LENGTH_SHORT).show();
             searching = false;
         }
+//        bookListAdapter.notifyDataSetChanged();
     }
 
     @Override
     public void onLoaderReset(Loader<Cursor> loader) {
+        Log.d(ListOfBooksFragment.class.getSimpleName(), "Loader Reset");
         bookListAdapter.swapCursor(null);
     }
 }

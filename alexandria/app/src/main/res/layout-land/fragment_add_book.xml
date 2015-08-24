@@ -1,14 +1,40 @@
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools" android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    android:padding="@dimen/padding_medium"
     tools:context="it.jaschke.alexandria.fragments.AddBookFragment">
 
-    <LinearLayout
+    <android.support.v7.widget.Toolbar
+        android:id="@+id/toolbar"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal">
+        android:layout_height="?android:attr/actionBarSize"
+        android:layout_alignParentTop="true"
+        android:theme="@style/ThemeOverlay.AppCompat.Dark.ActionBar"/>
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="80dp"
+        android:layout_below="@id/toolbar"
+        android:background="@color/purple"/>
+
+    <FrameLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_below="@id/toolbar"
+        android:layout_marginEnd="@dimen/large_margin"
+        android:layout_marginLeft="@dimen/large_margin"
+        android:layout_marginRight="@dimen/large_margin"
+        android:layout_marginStart="@dimen/large_margin"
+        android:background="@color/white"
+        android:elevation="16dp"
+        android:padding="@dimen/padding_medium">
+
+        <LinearLayout
+            android:id="@+id/layoutBook"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:visibility="gone">
             <ImageView
                 android:id="@+id/bookCover"
                 android:layout_width="0dp"
@@ -23,81 +49,123 @@
                 android:maxWidth="120dp"
                 android:minHeight="240dp"
                 android:minWidth="120dp"
-                android:src="@drawable/placeholder"
-                android:visibility="invisible"/>
-
-        <LinearLayout
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_weight="2"
-            android:orientation="vertical">
-
-            <TextView
-                android:id="@+id/bookTitle"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginBottom="@dimen/padding_small"
-                android:ellipsize="end"
-                android:singleLine="true"
-                android:textAppearance="@style/TextAppearance.AppCompat.Title"
-                android:textIsSelectable="true"
-                tools:text="Hello Book"/>
-
-            <TextView
-                android:id="@+id/bookSubTitle"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginBottom="@dimen/padding_small"
-                android:ellipsize="end"
-                android:singleLine="true"
-                android:textAppearance="@style/TextAppearance.AppCompat.Subhead"
-                android:textColor="@color/text_gray"
-                tools:text="Hello Book"/>
-
-            <TextView
-                android:id="@+id/tvDesc"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:ellipsize="end"
-                android:maxLines="5"
-                android:text="@string/no_desc_available"
-                android:textAppearance="@style/TextAppearance.AppCompat.Body1"
-                android:visibility="invisible"
-                tools:text="Lorem ipsum dolor sit amet, eum ne fastidii voluptua, case omnium sit ut. Cetero iisque singulis duo at, noster mollis necessitatibus sit ei, possit salutandi ex cum. Solum facer movet sed ei. Omnes luptatum mei cu, te brute menandri efficiendi has, ex cum natum fastidii verterem. Duo ut aliquip facilisis intellegat, mel utroque meliore te, at illud aperiam sed."/>
+                android:src="@drawable/placeholder"/>
 
             <LinearLayout
-                android:layout_width="match_parent"
+                android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="@dimen/padding_medium">
+                android:layout_weight="2"
+                android:orientation="vertical">
 
                 <TextView
-                    android:id="@+id/authors"
-                    android:layout_width="0dp"
+                    android:id="@+id/bookTitle"
+                    android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:gravity="start"
-                    tools:text="Sir Arthur Conan Doyle"
+                    android:layout_marginBottom="@dimen/padding_small"
+                    android:ellipsize="end"
+                    android:singleLine="true"
+                    android:textAppearance="@style/TextAppearance.AppCompat.Title"
+                    android:textIsSelectable="true"
+                    tools:text="Hello Book"/>
+
+                <TextView
+                    android:id="@+id/bookSubTitle"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="@dimen/padding_small"
+                    android:ellipsize="end"
+                    android:singleLine="true"
+                    android:textAppearance="@style/TextAppearance.AppCompat.Subhead"
+                    android:textColor="@color/text_gray"
+                    tools:text="Hello Book"/>
+
+                <TextView
+                    android:id="@+id/tvDesc"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:ellipsize="end"
+                    android:maxLines="5"
+                    android:text="@string/no_desc_available"
+                    android:textAppearance="@style/TextAppearance.AppCompat.Body1"
+                    tools:text="Lorem ipsum dolor sit amet, eum ne fastidii voluptua, case omnium sit ut. Cetero iisque singulis duo at, noster mollis necessitatibus sit ei, possit salutandi ex cum. Solum facer movet sed ei. Omnes luptatum mei cu, te brute menandri efficiendi has, ex cum natum fastidii verterem. Duo ut aliquip facilisis intellegat, mel utroque meliore te, at illud aperiam sed."/>
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="@dimen/padding_medium">
+
+                    <TextView
+                        android:id="@+id/authors"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:gravity="start"
+                        tools:text="Sir Arthur Conan Doyle"
+                        />
+
+                    <TextView
+                        android:id="@+id/categories"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:gravity="end"
+                        tools:text="Fiction"/>
+
+                </LinearLayout>
+
+                <Button
+                    android:id="@+id/save_button"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="bottom|end"
+                    android:layout_marginTop="@dimen/padding_medium"
+                    android:text="@string/ok_button"
                     />
-
-                <TextView
-                    android:id="@+id/categories"
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:gravity="end"
-                    tools:text="Fiction"/>
-
             </LinearLayout>
-
-            <Button
-                android:id="@+id/save_button"
+        </LinearLayout>
+        <FrameLayout
+            android:id="@+id/layoutDisconnected"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:visibility="gone">
+            <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_gravity="bottom|end"
-                android:layout_marginTop="@dimen/padding_medium"
-                android:text="@string/ok_button"
-                android:visibility="invisible"
-                />
-        </LinearLayout>
-    </LinearLayout>
-</LinearLayout>
+                android:layout_gravity="center"
+                android:drawableTop="@drawable/disconnected"
+                android:gravity="center"
+                android:text="@string/error_server"
+                android:textAppearance="@style/TextAppearance.AppCompat.Headline"/>
+        </FrameLayout>
+
+        <FrameLayout
+            android:id="@+id/layoutNotFound"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:visibility="gone">
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:drawableTop="@drawable/not_found"
+                android:gravity="center"
+                android:text="@string/no_books_found"
+                android:textAppearance="@style/TextAppearance.AppCompat.Headline"/>
+        </FrameLayout>
+
+        <FrameLayout
+            android:id="@+id/layoutLoading"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
+
+            <ProgressBar
+                style="@style/Widget.AppCompat.ProgressBar"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"/>
+        </FrameLayout>
+
+    </FrameLayout>
+
+
+</RelativeLayout>

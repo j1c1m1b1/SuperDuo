@@ -10,8 +10,8 @@ import android.util.Log;
  */
 public class DbHelper extends SQLiteOpenHelper {
 
-    private static final int DATABASE_VERSION = 1;
     public static final String DATABASE_NAME = "alexandria.db";
+    private static final int DATABASE_VERSION = 1;
 
     public DbHelper(Context context) {
         super(context, DATABASE_NAME, null, DATABASE_VERSION);
@@ -22,6 +22,7 @@ public class DbHelper extends SQLiteOpenHelper {
 
         final String SQL_CREATE_BOOK_TABLE = "CREATE TABLE " + AlexandriaContract.BookEntry.TABLE_NAME + " ("+
                 AlexandriaContract.BookEntry._ID + " INTEGER PRIMARY KEY," +
+                AlexandriaContract.BookEntry.EAN + " TEXT UNIQUE," +
                 AlexandriaContract.BookEntry.TITLE + " TEXT NOT NULL," +
                 AlexandriaContract.BookEntry.SUBTITLE + " TEXT ," +
                 AlexandriaContract.BookEntry.DESC + " TEXT ," +

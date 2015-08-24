@@ -1,14 +1,14 @@
 package it.jaschke.alexandria.interfaces;
 
-import com.squareup.okhttp.Response;
+import android.support.annotation.Nullable;
+
+import it.jaschke.alexandria.model.Book;
+import it.jaschke.alexandria.util.ServerStatus;
 
 /**
  * @author Julio Mendoza on 8/18/15.
  */
 public interface RequestCallbackListener {
 
-    void onFail();
-
-    void onSuccess(Response response);
-
+    void onResponse(@Nullable Book book, @ServerStatus.BookStatus int status);
 }
