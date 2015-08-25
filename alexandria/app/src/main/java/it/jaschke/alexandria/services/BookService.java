@@ -62,12 +62,15 @@ public class BookService extends IntentService {
         {
             try
             {
+                //The catch controls the null pointer exception
+                //noinspection ConstantConditions
                 cursor.close();
             }
             catch (NullPointerException e)
             {
                 e.printStackTrace();
             }
+
             writeBackBook(ean, title, subtitle, description,
                     thumbnail);
 

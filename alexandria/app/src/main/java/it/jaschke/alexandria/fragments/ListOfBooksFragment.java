@@ -5,21 +5,30 @@ import android.animation.ObjectAnimator;
 import android.content.Context;
 import android.content.Intent;
 import android.database.Cursor;
+import android.graphics.Rect;
+import android.graphics.drawable.Drawable;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
+import android.support.annotation.DrawableRes;
+import android.support.annotation.StringRes;
+import android.support.design.widget.CoordinatorLayout;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
+import android.support.v7.widget.DefaultItemAnimator;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.AdapterView;
 import android.widget.ListView;
 import android.widget.RelativeLayout;
+import android.widget.TextView;
 
 import com.google.zxing.BarcodeFormat;
 import com.google.zxing.integration.android.IntentIntegrator;
@@ -34,21 +43,23 @@ import it.jaschke.alexandria.api.Callback;
 import it.jaschke.alexandria.data.AlexandriaContract;
 import it.jaschke.alexandria.util.AnimationUtils;
 import it.jaschke.alexandria.util.Constants;
+import it.jaschke.alexandria.util.Utils;
 
 
 public class ListOfBooksFragment extends Fragment implements LoaderManager.LoaderCallbacks<Cursor> {
 
     private BookListAdapter bookListAdapter;
 
-    private int position = ListView.INVALID_POSITION;
-    private ListView bookList;
-    private View rootView;
+    private int position = RecyclerView.NO_POSITION;
+    private RecyclerView bookList;
+    private CoordinatorLayout rootView;
     private FloatingActionButton fab;
     private FloatingActionButton btnScan;
     private FloatingActionButton btnIsbn;
     private RelativeLayout layoutChooseAction;
     private boolean chooseActionVisible;
     private boolean searching;
+    private TextView emptyView;
 
     public ListOfBooksFragment() {
     }
@@ -56,36 +67,25 @@ public class ListOfBooksFragment extends Fragment implements LoaderManager.Loade
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState)
     {
-
         if(savedInstanceState != null && savedInstanceState.containsKey(Constants.CHOOSE_VISIBLE))
         {
             chooseActionVisible = savedInstanceState.getBoolean(Constants.CHOOSE_VISIBLE);
         }
 
-        rootView = inflater.inflate(R.layout.fragment_list_of_books, container, false);
+        rootView = (CoordinatorLayout) inflater.inflate(R.layout.fragment_list_of_books, container, false);
 
-        bookList = (ListView) rootView.findViewById(R.id.listOfBooks);
-        bookList.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+        bookList = (RecyclerView) rootView.findViewById(R.id.listOfBooks);
+        LinearLayoutManager layoutManager = new LinearLayoutManager(getActivity(),
+                LinearLayoutManager.VERTICAL, false);
 
-            @Override
-            public void onItemClick(AdapterView<?> adapterView, View view, int position, long l) {
-                Cursor cursor = bookListAdapter.getCursor();
-                if (cursor != null && cursor.moveToPosition(position)) {
+        bookList.setLayoutManager(layoutManager);
+        bookList.setHasFixedSize(true);
+        bookList.setItemAnimator(new DefaultItemAnimator());
 
-                    String bookId = cursor.getString(cursor
-                            .getColumnIndex(AlexandriaContract.BookEntry._ID));
+        emptyView = (TextView) rootView.findViewById(R.id.emptyView);
 
-                    String bookTitle = cursor.getString(cursor
-                            .getColumnIndex(AlexandriaContract.BookEntry.TITLE));
-
-                    ((Callback) getActivity()).onItemSelected(bookId, bookTitle);
-                }
-            }
-        });
-
-        bookList.setEmptyView(rootView.findViewById(R.id.emptyView));
-
-        bookListAdapter = new BookListAdapter(getActivity(), null, 0);
+        bookListAdapter = new BookListAdapter();
+        bookListAdapter.initialize(getActivity(), ((Callback)getActivity()));
 
         bookList.setAdapter(bookListAdapter);
 
@@ -168,8 +168,6 @@ public class ListOfBooksFragment extends Fragment implements LoaderManager.Loade
         intentIntegrator.initiateScan();
     }
 
-
-
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
@@ -241,19 +239,45 @@ public class ListOfBooksFragment extends Fragment implements LoaderManager.Loade
 
     public void search(String query)
     {
+        getLoaderManager().destroyLoader(Constants.BOOKS_LOADER_ID);
         if(query != null && !query.isEmpty())
         {
             Bundle bundle = new Bundle();
             bundle.putString(Constants.QUERY, query);
             searching = true;
-            Log.d(ListOfBooksFragment.class.getSimpleName(), "Search");
             getLoaderManager().initLoader(Constants.BOOKS_LOADER_ID, bundle, this);
         }
     }
 
-    @Override
-    public Loader<Cursor> onCreateLoader(int id, Bundle bundle) {
+    private void changeEmptyView(@DrawableRes int drawableId, @StringRes int stringId)
+    {
+        if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR1)
+        {
+            emptyView.setCompoundDrawablesRelativeWithIntrinsicBounds(0, drawableId, 0, 0);
+        }
+        else
+        {
+            Drawable drawable = Utils.getDrawable(drawableId, getActivity());
+            Rect bounds = emptyView.getCompoundDrawables()[1].copyBounds();
+            drawable.setBounds(bounds);
+            emptyView.setCompoundDrawables(null, drawable, null, null);
+        }
+        emptyView.setText(stringId);
+    }
 
+    private void showEmptyView()
+    {
+        emptyView.setVisibility(View.VISIBLE);
+    }
+
+    private void hideEmptyView()
+    {
+        emptyView.setVisibility(View.GONE);
+    }
+
+    @Override
+    public Loader<Cursor> onCreateLoader(int id, Bundle bundle)
+    {
         Uri uri = AlexandriaContract.BookEntry.CONTENT_URI;
         if(bundle != null)
         {
@@ -274,25 +298,47 @@ public class ListOfBooksFragment extends Fragment implements LoaderManager.Loade
     }
 
     @Override
-    public void onLoadFinished(Loader<Cursor> loader, Cursor data) {
-        if(!data.isClosed() && data.getCount() > 0)
+    public void onLoadFinished(Loader<Cursor> loader, Cursor data)
+    {
+        if(!data.isClosed())
         {
-            bookListAdapter.swapCursor(data);
-            if (position != ListView.INVALID_POSITION) {
+            if(searching)
+            {
+                if(data.getCount() == 0)
+                {
+                    changeEmptyView(R.drawable.not_found, R.string.not_found);
+                    Snackbar.make(rootView, R.string.not_found, Snackbar.LENGTH_SHORT).show();
+                }
+                searching = false;
+            }
+            else
+            {
+                changeEmptyView(R.drawable.ic_add_book, R.string.no_books);
+            }
+
+            bookListAdapter.setCursor(data);
+            if(bookListAdapter.getItemCount() == 0)
+            {
+                showEmptyView();
+            }
+            else
+            {
+                hideEmptyView();
+            }
+            if (position != ListView.INVALID_POSITION)
+            {
                 bookList.smoothScrollToPosition(position);
             }
         }
-        else if(searching)
-        {
-            Snackbar.make(rootView, R.string.not_found, Snackbar.LENGTH_SHORT).show();
-            searching = false;
-        }
-//        bookListAdapter.notifyDataSetChanged();
     }
 
     @Override
     public void onLoaderReset(Loader<Cursor> loader) {
         Log.d(ListOfBooksFragment.class.getSimpleName(), "Loader Reset");
-        bookListAdapter.swapCursor(null);
+        bookListAdapter.setCursor(null);
+    }
+
+    public void resetLoader() {
+        getLoaderManager().restartLoader(Constants.BOOKS_LOADER_ID, null, this);
     }
 }

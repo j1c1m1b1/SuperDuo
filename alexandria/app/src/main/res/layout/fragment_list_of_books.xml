@@ -1,4 +1,5 @@
-<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<android.support.design.widget.CoordinatorLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
@@ -9,32 +10,22 @@
     <FrameLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent">
-        <ListView android:id="@+id/listOfBooks"
+        <android.support.v7.widget.RecyclerView
+            android:id="@+id/listOfBooks"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             />
-        <RelativeLayout
-            android:id="@+id/emptyView"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent">
 
-            <ImageView
-                android:id="@+id/ivAddBook"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_centerInParent="true"
-                android:contentDescription="@null"
-                android:src="@drawable/ic_add_book"/>
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_below="@id/ivAddBook"
-                android:layout_centerHorizontal="true"
-                android:layout_marginTop="8dp"
-                android:text="@string/no_books"
-                android:textAppearance="?android:attr/textAppearanceLarge"
-                android:textColor="@color/text_gray"/>
-        </RelativeLayout>
+        <TextView
+            android:id="@+id/emptyView"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:drawableTop="@drawable/ic_add_book"
+            android:text="@string/no_books"
+            android:textAppearance="?android:attr/textAppearanceLarge"
+            android:textColor="@color/text_gray"
+            android:visibility="gone"/>
 
     </FrameLayout>
 
@@ -82,4 +73,4 @@
             app:pressedTranslationZ="12dp"/>
 
     </RelativeLayout>
-</FrameLayout>
+</android.support.design.widget.CoordinatorLayout>

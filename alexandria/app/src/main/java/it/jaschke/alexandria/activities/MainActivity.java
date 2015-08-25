@@ -5,6 +5,7 @@ import android.content.Intent;
 import android.content.res.Configuration;
 import android.os.Bundle;
 import android.support.v4.app.FragmentManager;
+import android.support.v4.view.MenuItemCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.SearchView;
 import android.support.v7.widget.Toolbar;
@@ -74,24 +75,41 @@ public class MainActivity extends AppCompatActivity implements Callback,
         getMenuInflater().inflate(R.menu.main, menu);
 
         SearchManager searchManager = (SearchManager)getSystemService(SEARCH_SERVICE);
+
         SearchView searchView = (SearchView)menu.findItem(R.id.search).getActionView();
         searchView.setSearchableInfo(searchManager.getSearchableInfo(getComponentName()));
-        searchView.setSubmitButtonEnabled(true);
-        searchView.setQueryRefinementEnabled(true);
 
         return super.onCreateOptionsMenu(menu);
     }
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        // Handle action bar item clicks here. The action bar will
-        // automatically handle clicks on the Home/Up button, so long
-        // as you specify a parent activity in AndroidManifest.xml.
         int id = item.getItemId();
 
-        if (id == R.id.action_settings) {
+        if (id == R.id.action_settings)
+        {
             startActivity(new Intent(this, AboutActivity.class));
             return true;
+        }
+
+        else if(id == R.id.search)
+        {
+            MenuItemCompat.setOnActionExpandListener(item,
+                    new MenuItemCompat.OnActionExpandListener() {
+                @Override
+                public boolean onMenuItemActionExpand(MenuItem menuItem) {
+                    return true;
+                }
+
+                @Override
+                public boolean onMenuItemActionCollapse(MenuItem menuItem) {
+                    if(listFragment != null && listFragment.isVisible())
+                    {
+                        listFragment.resetLoader();
+                    }
+                    return true;
+                }
+            });
         }
 
         return super.onOptionsItemSelected(item);
@@ -106,15 +124,14 @@ public class MainActivity extends AppCompatActivity implements Callback,
         fragment.setArguments(args);
 
         int id = R.id.container;
-        if(findViewById(R.id.right_container) != null){
-            id = R.id.right_container;
+        if(findViewById(R.id.detail_container) != null){
+            id = R.id.detail_container;
         }
 
         getSupportFragmentManager().beginTransaction()
                 .replace(id, fragment)
                 .addToBackStack("Book Detail")
                 .commit();
-
     }
 
     public void isbnDialog()
