@@ -1,15 +1,23 @@
-package barqsoft.footballscores;
+package barqsoft.footballscores.utils;
+
+import java.text.DateFormat;
+import java.text.ParseException;
+import java.util.Calendar;
+import java.util.Date;
+
+import barqsoft.footballscores.R;
 
 /**
  * Created by yehya khaled on 3/3/2015.
  */
-public class Utilies
+public class Utils
 {
     public static final int SERIE_A = 357;
     public static final int PREMIER_LEGAUE = 354;
     public static final int CHAMPIONS_LEAGUE = 362;
     public static final int PRIMERA_DIVISION = 358;
     public static final int BUNDESLIGA = 351;
+
     public static String getLeague(int league_num)
     {
         switch (league_num)
@@ -83,4 +91,42 @@ public class Utilies
             default: return R.drawable.no_icon;
         }
     }
+
+    public static String[] parseDate(DateFormat dateFormat, String date) throws ParseException
+    {
+        String[] dateArray = new String[2];
+        Date parsedDate = dateFormat.parse(date);
+
+        Calendar calendar = Calendar.getInstance();
+        calendar.setTime(parsedDate);
+
+        String year = "" + calendar.get(Calendar.YEAR);
+
+        int month = calendar.get(Calendar.MONTH) + 1;
+
+        String monthString = month > 9 ? "" + month : "0" + month;
+
+        int day = calendar.get(Calendar.DAY_OF_MONTH);
+
+        String dayString = day > 9 ? "" + day : "0" + day;
+
+        date =  year + "-" + monthString + "-" + dayString;
+
+        int hour = calendar.get(Calendar.HOUR_OF_DAY);
+
+        String hourString = hour > 9 ? "" + hour : "0" + hour;
+
+        int minutes = calendar.get(Calendar.MINUTE);
+
+        String minuteString = minutes > 9 ? "" + minutes : "0" + minutes;
+
+        String time = hourString + ":" + minuteString;
+
+        dateArray[0] = date;
+
+        dateArray[1] = time;
+
+        return dateArray;
+    }
+
 }

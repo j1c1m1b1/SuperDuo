@@ -22,8 +22,8 @@ import java.util.Date;
 import java.util.TimeZone;
 import java.util.Vector;
 
-import barqsoft.footballscores.DatabaseContract;
 import barqsoft.footballscores.R;
+import barqsoft.footballscores.data.DatabaseContract;
 
 /**
  * Created by yehya khaled on 3/2/2015.
@@ -146,7 +146,7 @@ public class myFetchService extends IntentService
         final String LINKS = "_links";
         final String SOCCER_SEASON = "soccerseason";
         final String SELF = "self";
-        final String MATCH_DATE = "date";
+        final String MATCH_DATE = "tvDate";
         final String HOME_TEAM = "homeTeamName";
         final String AWAY_TEAM = "awayTeamName";
         final String RESULT = "result";
@@ -155,15 +155,15 @@ public class myFetchService extends IntentService
         final String MATCH_DAY = "matchday";
 
         //Match data
-        String League = null;
-        String mDate = null;
-        String mTime = null;
-        String Home = null;
-        String Away = null;
-        String Home_goals = null;
-        String Away_goals = null;
-        String match_id = null;
-        String match_day = null;
+        String League;
+        String mDate;
+        String mTime;
+        String Home;
+        String Away;
+        String Home_goals;
+        String Away_goals;
+        String match_id;
+        String match_day;
 
 
         try {
@@ -206,7 +206,7 @@ public class myFetchService extends IntentService
                         mDate = mDate.substring(0,mDate.indexOf(":"));
 
                         if(!isReal){
-                            //This if statement changes the dummy data's date to match our current date range.
+                            //This if statement changes the dummy data's tvDate to match our current tvDate range.
                             Date fragmentdate = new Date(System.currentTimeMillis()+((i-2)*86400000));
                             SimpleDateFormat mformat = new SimpleDateFormat("yyyy-MM-dd");
                             mDate=mformat.format(fragmentdate);
