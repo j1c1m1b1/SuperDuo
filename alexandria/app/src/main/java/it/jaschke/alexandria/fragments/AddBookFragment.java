@@ -24,7 +24,6 @@ import it.jaschke.alexandria.interfaces.RequestCallbackListener;
 import it.jaschke.alexandria.model.Book;
 import it.jaschke.alexandria.services.BookService;
 import it.jaschke.alexandria.util.Constants;
-import it.jaschke.alexandria.util.ServerStatus;
 
 
 public class AddBookFragment extends Fragment{
@@ -118,7 +117,7 @@ public class AddBookFragment extends Fragment{
         {
             RequestCallbackListener listener = new RequestCallbackListener() {
                 @Override
-                public void onResponse(@Nullable Book book, @ServerStatus.BookStatus final int status)
+                public void onResponse(@Nullable Book book, @Constants.BookStatus final int status)
                 {
                     AddBookFragment.this.status = status;
                     AddBookFragment.this.book = book;
@@ -140,14 +139,14 @@ public class AddBookFragment extends Fragment{
         layoutLoading.setVisibility(View.GONE);
         switch (status)
         {
-            case ServerStatus.BOOK_SERVER_STATUS_INVALID:
-            case ServerStatus.BOOK_SERVER_STATUS_DOWN:
+            case Constants.BOOK_SERVER_STATUS_INVALID:
+            case Constants.BOOK_SERVER_STATUS_DOWN:
                 layoutDisconnected.setVisibility(View.VISIBLE);
                 break;
-            case ServerStatus.BOOK_STATUS_NOT_FOUND:
+            case Constants.BOOK_STATUS_NOT_FOUND:
                 layoutNotFound.setVisibility(View.VISIBLE);
                 break;
-            case ServerStatus.BOOK_STATUS_SUCCESS:
+            case Constants.BOOK_STATUS_SUCCESS:
                 layoutBook.setVisibility(View.VISIBLE);
                 fillBookInfo();
                 break;

@@ -17,7 +17,6 @@ import java.io.IOException;
 import it.jaschke.alexandria.interfaces.RequestCallbackListener;
 import it.jaschke.alexandria.model.Book;
 import it.jaschke.alexandria.util.Constants;
-import it.jaschke.alexandria.util.ServerStatus;
 
 /**
  * @author Julio Mendoza on 8/18/15.
@@ -43,23 +42,23 @@ public class BookRequest
         client.newCall(request).enqueue(new Callback() {
             @Override
             public void onFailure(Request request, IOException e) {
-                listener.onResponse(null, ServerStatus.BOOK_SERVER_STATUS_DOWN);
+                listener.onResponse(null, Constants.BOOK_SERVER_STATUS_DOWN);
             }
 
             @Override
             public void onResponse(Response response) throws IOException
             {
                 try {
-                    int status = ServerStatus.BOOK_STATUS_NOT_FOUND;
+                    int status = Constants.BOOK_STATUS_NOT_FOUND;
                     Book book = JSONToBook(response.body().string());
                     if(book != null)
                     {
-                        status = ServerStatus.BOOK_STATUS_SUCCESS;
+                        status = Constants.BOOK_STATUS_SUCCESS;
                     }
                     listener.onResponse(book, status);
                 } catch (JSONException e) {
                     e.printStackTrace();
-                    listener.onResponse(null, ServerStatus.BOOK_SERVER_STATUS_INVALID);
+                    listener.onResponse(null, Constants.BOOK_SERVER_STATUS_INVALID);
                 }
             }
         });
