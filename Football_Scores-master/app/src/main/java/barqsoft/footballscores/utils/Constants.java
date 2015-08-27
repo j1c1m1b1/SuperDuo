@@ -13,6 +13,7 @@ public class Constants {
     //Request Match Data
     public static final String BASE_URL = "http://api.football-data.org/alpha/fixtures"; //Base URL
     public static final String QUERY_TIME_FRAME = "timeFrame"; //Time Frame parameter to determine days
+    public static final String TOKEN_HEADER = "X-Auth-Token";
     public static final String N2 = "n2";
     public static final String P2 = "p2";
 
@@ -23,7 +24,6 @@ public class Constants {
     public static final String LEAGUE_ARG = "league";
     public static final String SHARE_TEXT_ARG = "share_text";
     public static final String FOOTBALL_SCORES_HASHTAG = "#Football_Scores";
-
 
     //JSON Parsing
     public static final String SERIE_A = "357";
@@ -37,7 +37,7 @@ public class Constants {
     public static final String LINKS = "_links";
     public static final String SOCCER_SEASON = "soccerseason";
     public static final String SELF = "self";
-    public static final String MATCH_DATE = "tvDate";
+    public static final String MATCH_DATE = "date";
     public static final String HOME_TEAM = "homeTeamName";
     public static final String AWAY_TEAM = "awayTeamName";
     public static final String RESULT = "result";

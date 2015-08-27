@@ -13,9 +13,10 @@ public class ScoresDBHelper extends SQLiteOpenHelper
 {
     public static final String DATABASE_NAME = "Scores.db";
     private static final int DATABASE_VERSION = 2;
-    public ScoresDBHelper(Context context)
+
+    public ScoresDBHelper(Context context, ScoresCursorFactory factory)
     {
-        super(context,DATABASE_NAME,null,DATABASE_VERSION);
+        super(context,DATABASE_NAME,factory,DATABASE_VERSION);
     }
 
     @Override

@@ -16,6 +16,8 @@ import org.json.JSONObject;
 import java.io.IOException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Date;
 import java.util.Locale;
 import java.util.TimeZone;
 
@@ -36,7 +38,10 @@ public class Requests {
     private static final SimpleDateFormat dateFormat =
             new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'", Locale.US);
 
-    public static void fetchMatchData(String timeFrame,
+    private static final SimpleDateFormat dummyDateFormat = new SimpleDateFormat("yyyy-MM-dd",
+            Locale.US);
+
+    public static void fetchMatchData(String timeFrame, String token,
                                       final RequestCallbackListener callbackListener)
     {
         HttpUrl url = HttpUrl.parse(Constants.BASE_URL);
@@ -46,6 +51,7 @@ public class Requests {
                 .build();
 
         Request request = new Request.Builder()
+                .addHeader(Constants.TOKEN_HEADER, token)
                 .url(url)
                 .build();
 
@@ -60,34 +66,49 @@ public class Requests {
             public void onResponse(Response response) throws IOException
             {
                 String JSONData = response.body().string();
-                Log.d(TAG, "" + JSONData);
                 dateFormat.setTimeZone(TimeZone.getTimeZone(Constants.UTC));
-                processJSONData(JSONData, callbackListener);
+                processJSONData(JSONData, true, callbackListener);
             }
         });
     }
 
-
-    private static void processJSONData(String JSONData, RequestCallbackListener callbackListener)
+    public static void processJSONData(String JSONData, boolean isReal, RequestCallbackListener callbackListener)
     {
         try
         {
             JSONArray matches = new JSONObject(JSONData).getJSONArray(Constants.FIXTURES);
             //ContentValues to be inserted
-            ContentValues[] values = new ContentValues[matches.length()];
-            ContentValues matchValues = new ContentValues();
+            ArrayList<ContentValues> valuesList = new ArrayList<>();
+
+            Date fragmentDate = null;
+
+            ContentValues matchValues;
+            ContentValues emptyValues = new ContentValues();
             for(int i = 0;i < matches.length();i++)
             {
+                matchValues = new ContentValues();
                 JSONObject matchData = matches.getJSONObject(i);
-                matchValues = parseMatchData(matchData, matchValues);
-                values[i] = matchValues;
-                if(i < matches.length()-1)
+                if(!isReal)
                 {
-                    matchValues.clear();
+                    fragmentDate = new Date(System.currentTimeMillis() + ((i-2)*86400000));
                 }
+                matchValues = parseMatchData(matchData, fragmentDate, i, matchValues);
+                if(matchValues.equals(emptyValues))
+                {
+                    continue;
+                }
+                valuesList.add(matchValues);
             }
 
-            callbackListener.onResponse(values, Constants.RESULT_CODE_SUCCESS);
+            ContentValues[] values = valuesList.toArray(new ContentValues[valuesList.size()]);
+            if(values.length > 0)
+            {
+                callbackListener.onResponse(values, Constants.RESULT_CODE_SUCCESS);
+            }
+            else
+            {
+                callbackListener.onResponse(null, Constants.RESULT_CODE_NO_DATA);
+            }
         }
         catch (JSONException e)
         {
@@ -96,7 +117,8 @@ public class Requests {
         }
     }
 
-    private static ContentValues parseMatchData(JSONObject matchData, ContentValues matchValues)
+    private static ContentValues parseMatchData(JSONObject matchData, Date fragmentDate,
+                                                int position, ContentValues matchValues)
             throws JSONException
     {
         String league;
@@ -110,7 +132,7 @@ public class Requests {
         String matchDay;
         league = matchData.getJSONObject(Constants.LINKS).getJSONObject(Constants.SOCCER_SEASON).
                 getString(Constants.HREF);
-        league = league.replace(Constants.SEASON_LINK,"");
+        league = league.replace(Constants.SEASON_LINK, "");
 
         if(     league.equals(Constants.PREMIER_LEGAUE)      ||
                 league.equals(Constants.SERIE_A)             ||
@@ -135,6 +157,12 @@ public class Requests {
                 Log.e(TAG,"" + e.getMessage());
                 e.printStackTrace();
             }
+            if(fragmentDate != null)
+            {
+                mDate = dummyDateFormat.format(fragmentDate);
+                matchId+=position;
+            }
+
             home = matchData.getString(Constants.HOME_TEAM);
             away = matchData.getString(Constants.AWAY_TEAM);
             homeGoals = matchData.getJSONObject(Constants.RESULT).getString(Constants.HOME_GOALS);
@@ -153,11 +181,4 @@ public class Requests {
         }
         return matchValues;
     }
-
-
-
-
-
-
-
 }

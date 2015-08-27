@@ -7,17 +7,19 @@ import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentStatePagerAdapter;
 import android.support.v4.view.ViewPager;
-import android.text.format.Time;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
 import java.text.SimpleDateFormat;
+import java.util.Calendar;
 import java.util.Date;
+import java.util.GregorianCalendar;
 import java.util.Locale;
 
 import barqsoft.footballscores.R;
 import barqsoft.footballscores.activities.MainActivity;
+import barqsoft.footballscores.sync.FootballScoresSyncAdapter;
 
 /**
  * Created by yehya khaled on 2/27/2015.
@@ -44,9 +46,15 @@ public class PagerFragment extends Fragment
         }
         mPagerHandler.setAdapter(mPagerAdapter);
         mPagerHandler.setCurrentItem(MainActivity.currentFragment);
+
         return rootView;
     }
 
+    @Override
+    public void onStart() {
+        super.onStart();
+        FootballScoresSyncAdapter.syncImmediately(getActivity());
+    }
 
     private class myPageAdapter extends FragmentStatePagerAdapter
     {
@@ -71,16 +79,22 @@ public class PagerFragment extends Fragment
         @Override
         public CharSequence getPageTitle(int position)
         {
-            return getDayName(getActivity(),System.currentTimeMillis()+((position-2)*86400000));
+            long dateInMillis = System.currentTimeMillis()+((position-2)*86400000);
+            return getDayName(getActivity(), dateInMillis);
         }
+
         public String getDayName(Context context, long dateInMillis) {
             // If the tvDate is today, return the localized version of "Today" instead of the actual
             // day name.
 
-            Time t = new Time();
-            t.setToNow();
-            int julianDay = Time.getJulianDay(dateInMillis, t.gmtoff);
-            int currentJulianDay = Time.getJulianDay(System.currentTimeMillis(), t.gmtoff);
+            Calendar calendar = Calendar.getInstance();
+
+            int currentJulianDay = calendar.get(GregorianCalendar.DAY_OF_WEEK);
+
+            calendar.setTimeInMillis(dateInMillis);
+
+            int julianDay = calendar.get(GregorianCalendar.DAY_OF_WEEK);
+
             if (julianDay == currentJulianDay) {
                 return context.getString(R.string.today);
             } else if ( julianDay == currentJulianDay +1 ) {
@@ -92,10 +106,8 @@ public class PagerFragment extends Fragment
             }
             else
             {
-                Time time = new Time();
-                time.setToNow();
                 // Otherwise, the format is just the day of the week (e.g "Wednesday".
-                SimpleDateFormat dayFormat = new SimpleDateFormat("EEEE");
+                SimpleDateFormat dayFormat = new SimpleDateFormat("EEEE", Locale.US);
                 return dayFormat.format(dateInMillis);
             }
         }

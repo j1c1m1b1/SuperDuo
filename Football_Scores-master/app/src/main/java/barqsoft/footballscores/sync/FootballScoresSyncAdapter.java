@@ -124,7 +124,13 @@ public class FootballScoresSyncAdapter extends AbstractThreadedSyncAdapter
             {
                 if(status != Constants.RESULT_CODE_SUCCESS)
                 {
-                    //TODO process erred response;
+                    switch (status)
+                    {
+                        case Constants.RESULT_CODE_NO_DATA:
+                            Requests.processJSONData(getContext().getString(R.string.dummy_data),
+                                    false, this);
+                            break;
+                    }
                 }
                 else
                 {
@@ -141,7 +147,9 @@ public class FootballScoresSyncAdapter extends AbstractThreadedSyncAdapter
             }
         };
 
-        Requests.fetchMatchData(Constants.N2, listener);
-        Requests.fetchMatchData(Constants.P2, listener);
+        String token = getContext().getString(R.string.api_key);
+
+        Requests.fetchMatchData(Constants.N2, token, listener);
+        Requests.fetchMatchData(Constants.P2, token, listener);
     }
 }

@@ -25,7 +25,7 @@ public class ScoresAdapter extends RecyclerView.Adapter<ScoresAdapter.ViewHolder
     public static final int COL_LEAGUE = 5;
     public static final int COL_MATCHDAY = 9;
     public static final int COL_MATCHTIME = 2;
-    public double detail_match_id = 0;
+    public double detailMatchId = 0;
 
     private Cursor cursor;
 
