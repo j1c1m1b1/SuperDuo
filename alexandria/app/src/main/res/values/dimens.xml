@@ -12,6 +12,8 @@
     <dimen name="small_thumb_max_height">120dp</dimen>
     <dimen name="large_thumb_max_width">120dp</dimen>
     <dimen name="large_thumb_max_height">240dp</dimen>
+    <dimen name="xlarge_thumb_max_width">240dp</dimen>
+    <dimen name="xlarge_thumb_max_height">480dp</dimen>
 
     <dimen name="large_margin">64dp</dimen>
 </resources>
