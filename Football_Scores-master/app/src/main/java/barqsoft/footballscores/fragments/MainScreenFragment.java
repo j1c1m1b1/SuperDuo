@@ -46,7 +46,7 @@ public class MainScreenFragment extends Fragment implements LoaderManager.Loader
         scoreList.setHasFixedSize(true);
         scoreList.setItemAnimator(new DefaultItemAnimator());
 
-        adapter = new ScoresAdapter();
+        adapter = new ScoresAdapter(getActivity());
         scoreList.setAdapter(adapter);
 
         adapter.detailMatchId = MainActivity.selectedMatchId;

@@ -1,5 +1,6 @@
 package barqsoft.footballscores.adapters;
 
+import android.content.Context;
 import android.database.Cursor;
 import android.support.annotation.DrawableRes;
 import android.support.v7.widget.RecyclerView;
@@ -25,11 +26,18 @@ public class ScoresAdapter extends RecyclerView.Adapter<ScoresAdapter.ViewHolder
     public static final int COL_LEAGUE = 5;
     public static final int COL_MATCHDAY = 9;
     public static final int COL_MATCHTIME = 2;
+
+    private final Context context;
     public double detailMatchId = 0;
 
     private Cursor cursor;
 
     private OnItemClickListener onItemClickListener;
+
+    public ScoresAdapter(Context context)
+    {
+        this.context = context;
+    }
 
     public void swapCursor(Cursor cursor)
     {
@@ -110,9 +118,20 @@ public class ScoresAdapter extends RecyclerView.Adapter<ScoresAdapter.ViewHolder
                          String matchDay, String league)
         {
             tvHomeName.setText(homeName);
+            String contentDescription = String.format(context.getString(R.string.homeTeamName), homeName);
+            tvHomeName.setContentDescription(contentDescription);
+
+            contentDescription =
+                    String.format(context.getString(R.string.awayTeamName), awayName);
             tvAwayName.setText(awayName);
+            tvAwayName.setContentDescription(contentDescription);
+
+            contentDescription = String.format(context.getString(R.string.datePlayed), date);
             tvDate.setText(date);
+            tvDate.setContentDescription(contentDescription);
+
             tvScore.setText(score);
+
             ivHomeCrest.setBackgroundResource(homeCrestResId);
             ivAwayCrest.setBackgroundResource(awayCrestRestId);
             this.matchDay = matchDay;

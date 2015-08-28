@@ -37,23 +37,25 @@
         <LinearLayout
             android:layout_width="0dp"
             android:layout_height="match_parent"
+            android:layout_gravity="center_vertical"
             android:layout_weight="1"
             android:orientation="vertical">
             <TextView
                 android:id="@+id/score_textview"
                 android:layout_width="wrap_content"
-                android:layout_height="0dp"
+                android:layout_height="wrap_content"
                 android:layout_gravity="center"
-                android:layout_weight="1"
                 android:gravity="center"
-                android:textSize="@dimen/Score"/>
+                android:textSize="@dimen/Score"
+                tools:text="2 - 1"/>
             <TextView
                 android:id="@+id/data_textview"
                 android:layout_width="wrap_content"
-                android:layout_height="0dp"
+                android:layout_height="wrap_content"
                 android:layout_gravity="center"
-                android:layout_weight="1"
-                android:gravity="center"/>
+                android:layout_marginTop="16dp"
+                android:gravity="center"
+                tools:text="12:00"/>
 
         </LinearLayout>
         <LinearLayout
