@@ -10,6 +10,13 @@ import java.lang.annotation.RetentionPolicy;
  */
 public class Constants {
 
+    /**
+     * Private code to request the camera permission to the user.
+     */
+    public static final int PERMISSION_REQUEST_CAMERA = 1;
+    public static final String PREFS_NAME = "alexandria_prefs";
+    public static final String CAMERA_PERMISSION_GRANTED = "camera_permission_granted";
+
     public static final String SAVE_BOOK = "it.jaschke.alexandria.services.action.SAVE_BOOK";
     public static final String DELETE_BOOK = "it.jaschke.alexandria.services.action.DELETE_BOOK";
     public static final String EAN = "EAN";

@@ -30,4 +30,6 @@
     <string name="incorrect_format">The barcode format is not valid!</string>
     <string name="error_server">There was an error contacting the server</string>
     <string name="book_deleted">Book deleted</string>
+    <string name="why_camera">Why does Alexandria need the camera persmission?</string>
+    <string name="camera_explanation">Alexandria uses the camera to allow you to add books by scanning real books bar codes.</string>
 </resources>

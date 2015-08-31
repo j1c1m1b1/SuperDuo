@@ -4,6 +4,7 @@ import android.animation.AnimatorSet;
 import android.animation.ObjectAnimator;
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.graphics.Rect;
 import android.graphics.drawable.Drawable;
@@ -85,38 +86,60 @@ public class ListOfBooksFragment extends Fragment implements LoaderManager.Loade
         emptyView = (TextView) rootView.findViewById(R.id.emptyView);
 
         bookListAdapter = new BookListAdapter();
-        bookListAdapter.initialize(getActivity(), ((Callback)getActivity()));
+        bookListAdapter.initialize(getActivity(), ((Callback) getActivity()));
 
         bookList.setAdapter(bookListAdapter);
 
+        SharedPreferences prefs = getActivity().getSharedPreferences(Constants.PREFS_NAME,
+                Context.MODE_PRIVATE);
+
+        final boolean permissionPendingOrGranted = !prefs.contains(Constants.CAMERA_PERMISSION_GRANTED) ||
+                prefs.getBoolean(Constants.CAMERA_PERMISSION_GRANTED, false);
+
         fab = (FloatingActionButton) rootView.findViewById(R.id.fab);
+        if(!permissionPendingOrGranted)
+        {
+            fab.setBackgroundResource(R.drawable.ic_mode_edit);
+        }
+
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-
-                showChooseActionLayout();
+                if(permissionPendingOrGranted)
+                {
+                    showChooseActionLayout();
+                }
+                else
+                {
+                    ((MainActivity) getActivity()).isbnDialog();
+                }
             }
         });
 
         layoutChooseAction = (RelativeLayout) rootView.findViewById(R.id.layoutChooseAction);
-        btnScan = (FloatingActionButton) rootView.findViewById(R.id.btnScan);
-
-        btnScan.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                scanBook();
-            }
-        });
 
         btnIsbn = (FloatingActionButton) rootView.findViewById(R.id.btnIsbn);
-        btnIsbn.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                ((MainActivity) getActivity()).isbnDialog();
-            }
-        });
+        btnScan = (FloatingActionButton) rootView.findViewById(R.id.btnScan);
+        if(permissionPendingOrGranted)
+        {
+            btnScan.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view)
+                {
+                    ((MainActivity)getActivity()).checkCameraPermissions();
+                }
+            });
 
-        if(chooseActionVisible)
+            btnIsbn.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    ((MainActivity) getActivity()).isbnDialog();
+                }
+            });
+        }
+
+
+        if(chooseActionVisible && permissionPendingOrGranted)
         {
             layoutChooseAction.setVisibility(View.VISIBLE);
             btnScan.setVisibility(View.VISIBLE);
@@ -154,7 +177,7 @@ public class ListOfBooksFragment extends Fragment implements LoaderManager.Loade
         outState.putBoolean(Constants.CHOOSE_VISIBLE, chooseActionVisible);
     }
 
-    private void scanBook()
+    public void scanBook()
     {
         IntentIntegrator intentIntegrator =
                 IntentIntegrator.forSupportFragment(ListOfBooksFragment.this);
@@ -171,24 +194,27 @@ public class ListOfBooksFragment extends Fragment implements LoaderManager.Loade
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-        IntentResult scanningResult = IntentIntegrator.parseActivityResult(requestCode, resultCode,
-                data);
-        if(scanningResult != null)
+        if(data != null)
         {
-            String contents = scanningResult.getContents();
-            String formatName = scanningResult.getFormatName();
-            if(formatName.equals(BarcodeFormat.EAN_13.name()))
+            IntentResult scanningResult = IntentIntegrator.parseActivityResult(requestCode, resultCode,
+                    data);
+            if(scanningResult != null)
             {
-                goToAdd(contents);
+                String contents = scanningResult.getContents();
+                String formatName = scanningResult.getFormatName();
+                if(formatName.equals(BarcodeFormat.EAN_13.name()))
+                {
+                    goToAdd(contents);
+                }
+                else
+                {
+                    Snackbar.make(rootView, R.string.incorrect_format, Snackbar.LENGTH_LONG).show();
+                }
             }
             else
             {
-                Snackbar.make(rootView, R.string.incorrect_format, Snackbar.LENGTH_LONG).show();
+                Snackbar.make(rootView, R.string.no_data, Snackbar.LENGTH_LONG).show();
             }
-        }
-        else
-        {
-            Snackbar.make(rootView, R.string.no_data, Snackbar.LENGTH_LONG).show();
         }
     }
 

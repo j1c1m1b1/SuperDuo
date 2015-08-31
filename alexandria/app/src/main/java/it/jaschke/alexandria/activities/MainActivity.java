@@ -1,11 +1,19 @@
 package it.jaschke.alexandria.activities;
 
+import android.Manifest;
 import android.app.SearchManager;
+import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
+import android.content.pm.PackageManager;
 import android.content.res.Configuration;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
+import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.FragmentManager;
+import android.support.v4.content.ContextCompat;
 import android.support.v4.view.MenuItemCompat;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.SearchView;
 import android.support.v7.widget.Toolbar;
@@ -21,7 +29,7 @@ import it.jaschke.alexandria.util.Constants;
 
 
 public class MainActivity extends AppCompatActivity implements Callback,
-        ISBNDialogFragment.OnDialogOkListener {
+        ISBNDialogFragment.OnDialogOkListener, ActivityCompat.OnRequestPermissionsResultCallback {
 
     public static boolean IS_TABLET = false;
 
@@ -96,20 +104,20 @@ public class MainActivity extends AppCompatActivity implements Callback,
         {
             MenuItemCompat.setOnActionExpandListener(item,
                     new MenuItemCompat.OnActionExpandListener() {
-                @Override
-                public boolean onMenuItemActionExpand(MenuItem menuItem) {
-                    return true;
-                }
+                        @Override
+                        public boolean onMenuItemActionExpand(MenuItem menuItem) {
+                            return true;
+                        }
 
-                @Override
-                public boolean onMenuItemActionCollapse(MenuItem menuItem) {
-                    if(listFragment != null && listFragment.isVisible())
-                    {
-                        listFragment.resetLoader();
-                    }
-                    return true;
-                }
-            });
+                        @Override
+                        public boolean onMenuItemActionCollapse(MenuItem menuItem) {
+                            if(listFragment != null && listFragment.isVisible())
+                            {
+                                listFragment.resetLoader();
+                            }
+                            return true;
+                        }
+                    });
         }
 
         return super.onOptionsItemSelected(item);
@@ -155,6 +163,54 @@ public class MainActivity extends AppCompatActivity implements Callback,
         else
         {
             super.onBackPressed();
+        }
+    }
+
+
+    public void checkCameraPermissions()
+    {
+        if(ContextCompat.checkSelfPermission(this, Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED)
+        {
+            //Should we show an explanation?
+            if(ActivityCompat.shouldShowRequestPermissionRationale(this, Manifest.permission.CAMERA))
+            {
+                AlertDialog.Builder builder = new AlertDialog.Builder(this);
+                builder.setTitle(R.string.why_camera);
+                builder.setMessage(R.string.camera_explanation);
+                AlertDialog dialog = builder.create();
+                dialog.show();
+            }
+
+            ActivityCompat.requestPermissions(this,
+                    new String[]{Manifest.permission.CAMERA}, Constants.PERMISSION_REQUEST_CAMERA);
+        }
+        else
+        {
+            listFragment.scanBook();
+        }
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode,
+                                           @NonNull String[] permissions, @NonNull int[] grantResults)
+    {
+        switch (requestCode)
+        {
+            case Constants.PERMISSION_REQUEST_CAMERA:
+
+                SharedPreferences prefs = getSharedPreferences(Constants.PREFS_NAME, Context.MODE_PRIVATE);
+                SharedPreferences.Editor editor = prefs.edit();
+                if(grantResults[0] == PackageManager.PERMISSION_GRANTED)
+                {
+                    editor.putBoolean(Constants.CAMERA_PERMISSION_GRANTED, true);
+                    editor.apply();
+                    listFragment.scanBook();
+                }
+                else
+                {
+                    editor.putBoolean(Constants.CAMERA_PERMISSION_GRANTED, false);
+                    editor.apply();
+                }
         }
     }
 
