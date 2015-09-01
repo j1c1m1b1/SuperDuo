@@ -4,7 +4,6 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.v7.app.AppCompatActivity;
-import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 
@@ -20,12 +19,11 @@ public class MainActivity extends AppCompatActivity
 
     public static int currentFragment = 2;
 
-    private final String saveTag = "Save Test";
-
     private PagerFragment pagerFragment;
 
     @Override
-    protected void onCreate(Bundle savedInstanceState) {
+    protected void onCreate(Bundle savedInstanceState)
+    {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         if (savedInstanceState == null) {
@@ -34,26 +32,26 @@ public class MainActivity extends AppCompatActivity
                     .add(R.id.container, pagerFragment)
                     .commit();
         }
-
         FootballScoresSyncAdapter.initializeSyncAdapter(this);
     }
 
 
     @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
+    public boolean onCreateOptionsMenu(Menu menu)
+    {
         // Inflate the menu; this adds items to the action bar if it is present.
         getMenuInflater().inflate(R.menu.menu_main, menu);
         return true;
     }
 
     @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
+    public boolean onOptionsItemSelected(MenuItem item)
+    {
         // Handle action bar item clicks here. The action bar will
         // automatically handle clicks on the Home/Up button, so long
         // as you specify a parent activity in AndroidManifest.xml.
         int id = item.getItemId();
 
-        //noinspection SimplifiableIfStatement
         if (id == R.id.action_about)
         {
             Intent start_about = new Intent(this,AboutActivity.class);
@@ -74,24 +72,20 @@ public class MainActivity extends AppCompatActivity
     @Override
     protected void onSaveInstanceState(Bundle outState)
     {
-        Log.v(saveTag,"will save");
-        Log.v(saveTag,"fragment: "+String.valueOf(pagerFragment.mPagerHandler.getCurrentItem()));
-        Log.v(saveTag,"selected id: "+ selectedMatchId);
-        outState.putInt("Pager_Current", pagerFragment.mPagerHandler.getCurrentItem());
-        outState.putInt("Selected_match", selectedMatchId);
-        getSupportFragmentManager().putFragment(outState,"pagerFragment", pagerFragment);
+        outState.putInt(Constants.CURRENT_PAGER, pagerFragment.mPagerHandler.getCurrentItem());
+        outState.putInt(Constants.SELECTED_MATCH, selectedMatchId);
+        getSupportFragmentManager().putFragment(outState,
+                Constants.PAGER_FRAGMENT_KEY, pagerFragment);
         super.onSaveInstanceState(outState);
     }
 
     @Override
     protected void onRestoreInstanceState(@NonNull Bundle savedInstanceState)
     {
-        Log.v(saveTag,"will retrive");
-        Log.v(saveTag,"fragment: "+String.valueOf(savedInstanceState.getInt("Pager_Current")));
-        Log.v(saveTag,"selected id: "+savedInstanceState.getInt("Selected_match"));
-        currentFragment = savedInstanceState.getInt("Pager_Current");
-        selectedMatchId = savedInstanceState.getInt("Selected_match");
-        pagerFragment = (PagerFragment) getSupportFragmentManager().getFragment(savedInstanceState,"pagerFragment");
+        currentFragment = savedInstanceState.getInt(Constants.CURRENT_PAGER);
+        selectedMatchId = savedInstanceState.getInt(Constants.SELECTED_MATCH);
+        pagerFragment = (PagerFragment) getSupportFragmentManager().getFragment(savedInstanceState,
+                Constants.PAGER_FRAGMENT_KEY);
         super.onRestoreInstanceState(savedInstanceState);
     }
 }

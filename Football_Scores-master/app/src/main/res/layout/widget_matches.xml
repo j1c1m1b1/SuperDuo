@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent" android:layout_height="match_parent"
+
+    android:orientation="vertical"
+    android:padding="@dimen/widget_margin">
+
+        <TextView
+            android:id="@+id/tvWidgetTitle"
+            android:layout_width="match_parent"
+            android:layout_height="?attr/actionBarSize"
+            android:background="@color/green_primary"
+            android:contentDescription="@string/app_name"
+            android:drawableLeft="@mipmap/ic_launcher"
+            android:drawablePadding="@dimen/widget_margin"
+            android:drawableStart="@mipmap/ic_launcher"
+            android:gravity="center_vertical"
+            android:padding="@dimen/widget_margin"
+            android:text="@string/app_name"
+            android:textAppearance="@style/TextAppearance.AppCompat.Title"
+            android:textColor="@color/white"/>
+        <FrameLayout
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="1"
+            android:background="@color/white">
+
+            <ListView
+                android:id="@+id/listWidget"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"/>
+
+            <TextView
+                android:id="@+id/tvEmptyWidget"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:gravity="center"
+                android:text="@string/no_matches"
+                android:textAppearance="@style/TextAppearance.AppCompat.Large"/>
+        </FrameLayout>
+
+</LinearLayout>

@@ -8,7 +8,16 @@ import java.lang.annotation.RetentionPolicy;
 /**
  * @author Julio Mendoza on 8/26/15.
  */
-public class Constants {
+public class Constants
+{
+    //Main Activity
+    public static final String CURRENT_PAGER = "Pager_Current";
+    public static final String SELECTED_MATCH = "Selected_match";
+    public static final String PAGER_FRAGMENT_KEY = "pagerFragment";
+
+    //Pager Fragment
+    public static final String FRAGMENT_DATE = "fragment_date_arg";
+    public static final int NUM_PAGES = 5;
 
     //Request Match Data
     public static final String BASE_URL = "http://api.football-data.org/alpha/fixtures"; //Base URL
@@ -16,7 +25,6 @@ public class Constants {
     public static final String TOKEN_HEADER = "X-Auth-Token";
     public static final String N2 = "n2";
     public static final String P2 = "p2";
-
 
     //Detail Dialog
     public static final String DIALOG = "dialog";

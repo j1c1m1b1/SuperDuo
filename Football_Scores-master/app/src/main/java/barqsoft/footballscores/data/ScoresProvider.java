@@ -8,7 +8,6 @@ import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.net.Uri;
 import android.support.annotation.NonNull;
-import android.util.Log;
 
 /**
  * Created by yehya khaled on 2/25/2015.
@@ -142,8 +141,6 @@ public class ScoresProvider extends ContentProvider
     public int bulkInsert(@NonNull Uri uri, @NonNull ContentValues[] values)
     {
         SQLiteDatabase db = mOpenHelper.getWritableDatabase();
-        //db.delete(DatabaseContract.SCORES_TABLE,null,null);
-        //Log.v(FetchScoreTask.LOG_TAG,String.valueOf(muriMatcher.match(uri)));
         switch (match_uri(uri))
         {
             case MATCHES:
@@ -153,7 +150,6 @@ public class ScoresProvider extends ContentProvider
                 {
                     for(ContentValues value : values)
                     {
-                        Log.d(ScoresProvider.class.getSimpleName(), value.toString());
                         long _id = db.insertWithOnConflict(DatabaseContract.SCORES_TABLE, null, value,
                                 SQLiteDatabase.CONFLICT_REPLACE);
                         if (_id != -1)

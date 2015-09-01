@@ -46,4 +46,5 @@
     <string name="awayTeamName">vs. the away team: %1$s. Double tap the card to share this match results.</string>
     <string name="datePlayed">On the match played at: %1$s</string>
     <string name="tap_to_share">Tap the card to share the match results</string>
+    <string name="no_matches">There are no matches to display</string>
 </resources>

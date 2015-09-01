@@ -18,6 +18,7 @@ import barqsoft.footballscores.activities.MainActivity;
 import barqsoft.footballscores.adapters.ScoresAdapter;
 import barqsoft.footballscores.data.DatabaseContract;
 import barqsoft.footballscores.interfaces.OnItemClickListener;
+import barqsoft.footballscores.utils.Constants;
 
 /**
  * A placeholder fragment containing a simple view.
@@ -26,8 +27,23 @@ public class MainScreenFragment extends Fragment implements LoaderManager.Loader
 {
     public static final int SCORES_LOADER = 0;
     public ScoresAdapter adapter;
-    private String[] fragmentDate = new String[1];
+    private String fragmentDate;
     private int last_selected_item = -1;
+
+    public static MainScreenFragment newInstance(String fragmentDate)
+    {
+        Bundle args = new Bundle();
+        args.putString(Constants.FRAGMENT_DATE, fragmentDate);
+        MainScreenFragment fragment = new MainScreenFragment();
+        fragment.setArguments(args);
+        return fragment;
+    }
+
+    @Override
+    public void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        fragmentDate = getArguments().getString(Constants.FRAGMENT_DATE);
+    }
 
     @Override
     public void onActivityCreated(Bundle savedInstanceState) {
@@ -61,16 +77,11 @@ public class MainScreenFragment extends Fragment implements LoaderManager.Loader
         return rootView;
     }
 
-    public void setFragmentDate(String date)
-    {
-        fragmentDate[0] = date;
-    }
-
     @Override
     public Loader<Cursor> onCreateLoader(int i, Bundle bundle)
     {
         return new CursorLoader(getActivity(), DatabaseContract.scores_table.buildScoreWithDate(),
-                null, null, fragmentDate, null);
+                null, null, new String[]{fragmentDate}, null);
     }
 
     @Override
