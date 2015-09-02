@@ -27,8 +27,8 @@ public class PagerAdapter extends FragmentStatePagerAdapter
 
     public PagerAdapter(FragmentManager fm) {
         super(fm);
-        dayFormat = new SimpleDateFormat("EEEE", Locale.US);
-        dateFormat = new SimpleDateFormat("yyyy-MM-dd", Locale.US);
+        dayFormat = new SimpleDateFormat("EEEE", Locale.getDefault());
+        dateFormat = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault());
     }
 
     public void initialize(Context context)

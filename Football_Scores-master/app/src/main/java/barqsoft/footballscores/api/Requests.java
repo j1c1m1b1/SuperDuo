@@ -36,10 +36,10 @@ public class Requests {
     private static final OkHttpClient client = new OkHttpClient();
 
     private static final SimpleDateFormat dateFormat =
-            new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'", Locale.US);
+            new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'", Locale.getDefault());
 
     private static final SimpleDateFormat dummyDateFormat = new SimpleDateFormat("yyyy-MM-dd",
-            Locale.US);
+            Locale.getDefault());
 
     public static void fetchMatchData(String timeFrame, String token,
                                       final RequestCallbackListener callbackListener)

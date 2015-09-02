@@ -47,7 +47,7 @@ public class DetailFragment extends DialogFragment
     private Intent createShareIntent(String shareText) {
         Intent shareIntent = new Intent(Intent.ACTION_SEND);
         shareIntent.setType("text/plain");
-        shareIntent.putExtra(Intent.EXTRA_TEXT, shareText + Constants.FOOTBALL_SCORES_HASHTAG);
+        shareIntent.putExtra(Intent.EXTRA_TEXT, shareText);
         return shareIntent;
     }
 

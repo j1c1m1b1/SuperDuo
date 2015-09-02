@@ -136,8 +136,7 @@ public class ScoresAdapter extends RecyclerView.Adapter<ScoresAdapter.ViewHolder
             ivAwayCrest.setBackgroundResource(awayCrestRestId);
             this.matchDay = matchDay;
             this.league = league;
-
-            this.shareText = "Match Results: " + homeName + " " + score + " " + awayName;
+            this.shareText = String.format(context.getString(R.string.share_text_format), homeName, score, awayName);
 
         }
 

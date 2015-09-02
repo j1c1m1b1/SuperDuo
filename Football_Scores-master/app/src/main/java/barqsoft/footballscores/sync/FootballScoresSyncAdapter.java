@@ -7,6 +7,7 @@ import android.content.ContentProviderClient;
 import android.content.ContentResolver;
 import android.content.ContentValues;
 import android.content.Context;
+import android.content.Intent;
 import android.content.SyncRequest;
 import android.content.SyncResult;
 import android.os.Build;
@@ -27,6 +28,8 @@ public class FootballScoresSyncAdapter extends AbstractThreadedSyncAdapter
 {
     public static final int SYNC_INTERVAL = 60 * 180;
     public static final int SYNC_FLEXTIME = SYNC_INTERVAL/3;
+
+    public static final String ACTION_DATA_UPDATED = "barqsoft.footballscores.ACTION_DATA_UPDATED";
 
     public FootballScoresSyncAdapter(Context context, boolean autoInitialize) {
         super(context, autoInitialize);
@@ -129,6 +132,8 @@ public class FootballScoresSyncAdapter extends AbstractThreadedSyncAdapter
                         case Constants.RESULT_CODE_NO_DATA:
                             Requests.processJSONData(getContext().getString(R.string.dummy_data),
                                     false, this);
+
+                            updateWidget();
                             break;
                     }
                 }
@@ -137,6 +142,8 @@ public class FootballScoresSyncAdapter extends AbstractThreadedSyncAdapter
                     try
                     {
                         contentProviderClient.bulkInsert(DatabaseContract.BASE_CONTENT_URI, values);
+
+                        updateWidget();
                     }
                     catch (RemoteException e)
                     {
@@ -151,5 +158,15 @@ public class FootballScoresSyncAdapter extends AbstractThreadedSyncAdapter
 
         Requests.fetchMatchData(Constants.N2, token, listener);
         Requests.fetchMatchData(Constants.P2, token, listener);
+    }
+
+    private void updateWidget()
+    {
+        Context context = getContext();
+
+        Intent broadcastIntent = new Intent(ACTION_DATA_UPDATED)
+                .setPackage(context.getPackageName());
+
+        context.sendBroadcast(broadcastIntent);
     }
 }

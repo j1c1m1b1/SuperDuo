@@ -31,7 +31,6 @@ public class Constants
     public static final String MATCH_DAY_ARG = "match_day";
     public static final String LEAGUE_ARG = "league";
     public static final String SHARE_TEXT_ARG = "share_text";
-    public static final String FOOTBALL_SCORES_HASHTAG = " #FootballScores";
 
     //JSON Parsing
     public static final String SERIE_A = "357";
