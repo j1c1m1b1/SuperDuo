@@ -8,7 +8,6 @@ import android.view.Menu;
 import android.view.MenuItem;
 
 import barqsoft.footballscores.R;
-import barqsoft.footballscores.fragments.DetailFragment;
 import barqsoft.footballscores.fragments.PagerFragment;
 import barqsoft.footballscores.sync.FootballScoresSyncAdapter;
 import barqsoft.footballscores.utils.Constants;
@@ -33,8 +32,15 @@ public class MainActivity extends AppCompatActivity
                     .commit();
         }
         FootballScoresSyncAdapter.initializeSyncAdapter(this);
-    }
 
+        Intent intent = getIntent();
+        if(intent != null && intent.hasExtra(Constants.SELECTED_MATCH))
+        {
+            selectedMatchId = intent.getIntExtra(Constants.SELECTED_MATCH, Constants.INVALID_VALUE);
+
+
+        }
+    }
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu)
@@ -62,17 +68,10 @@ public class MainActivity extends AppCompatActivity
         return super.onOptionsItemSelected(item);
     }
 
-    public void showDetailDialog(String matchDay, String league, String shareText)
-    {
-        DetailFragment detailFragment = DetailFragment.newInstance(matchDay, league, shareText);
-        detailFragment.show(getSupportFragmentManager(), Constants.DIALOG);
-    }
-
-
     @Override
     protected void onSaveInstanceState(Bundle outState)
     {
-        outState.putInt(Constants.CURRENT_PAGER, pagerFragment.mPagerHandler.getCurrentItem());
+        outState.putInt(Constants.CURRENT_PAGER, pagerFragment.viewPager.getCurrentItem());
         outState.putInt(Constants.SELECTED_MATCH, selectedMatchId);
         getSupportFragmentManager().putFragment(outState,
                 Constants.PAGER_FRAGMENT_KEY, pagerFragment);

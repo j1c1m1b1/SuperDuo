@@ -14,6 +14,7 @@ public class Constants
     public static final String CURRENT_PAGER = "Pager_Current";
     public static final String SELECTED_MATCH = "Selected_match";
     public static final String PAGER_FRAGMENT_KEY = "pagerFragment";
+    public static final int INVALID_VALUE = -1;
 
     //Pager Fragment
     public static final String FRAGMENT_DATE = "fragment_date_arg";
@@ -25,12 +26,6 @@ public class Constants
     public static final String TOKEN_HEADER = "X-Auth-Token";
     public static final String N2 = "n2";
     public static final String P2 = "p2";
-
-    //Detail Dialog
-    public static final String DIALOG = "dialog";
-    public static final String MATCH_DAY_ARG = "match_day";
-    public static final String LEAGUE_ARG = "league";
-    public static final String SHARE_TEXT_ARG = "share_text";
 
     //JSON Parsing
     public static final String SERIE_A = "357";
@@ -61,6 +56,7 @@ public class Constants
 
     public static final int RESULT_CODE_INVALID_DATA = 2;
     public static final int RESULT_CODE_NO_DATA = 3;
+
 
     @Retention(RetentionPolicy.SOURCE)
     @IntDef({RESULT_CODE_SUCCESS, RESULT_CODE_SERVER_DOWN, RESULT_CODE_INVALID_DATA,

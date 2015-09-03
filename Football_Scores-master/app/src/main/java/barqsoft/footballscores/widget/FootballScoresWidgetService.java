@@ -16,6 +16,7 @@ import java.util.Locale;
 
 import barqsoft.footballscores.R;
 import barqsoft.footballscores.data.DatabaseContract;
+import barqsoft.footballscores.utils.Constants;
 import barqsoft.footballscores.utils.Utils;
 
 /**
@@ -30,6 +31,7 @@ public class FootballScoresWidgetService extends RemoteViewsService
     public static final int COL_HOME_GOALS = 6;
     public static final int COL_AWAY_GOALS = 7;
     public static final int COL_MATCHTIME = 2;
+    public static final int COL_ID = 8;
 
 
     @Override
@@ -90,7 +92,7 @@ public class FootballScoresWidgetService extends RemoteViewsService
                 RemoteViews views = new RemoteViews(getPackageName(), R.layout.item_widget_matches);
                 String homeName, awayName, date, score;
 
-                int homeCrestResId, awayCrestRestId;
+                int homeCrestResId, awayCrestRestId, id;
 
                 homeName = cursor.getString(COL_HOME);
                 awayName = cursor.getString(COL_AWAY);
@@ -99,6 +101,7 @@ public class FootballScoresWidgetService extends RemoteViewsService
 
                 homeCrestResId = Utils.getTeamCrestByTeamName(cursor.getString(COL_HOME));
                 awayCrestRestId = Utils.getTeamCrestByTeamName(cursor.getString(COL_AWAY));
+                id = (int)cursor.getDouble(COL_ID);
 
                 views.setImageViewResource(R.id.ivHomeCrest, homeCrestResId);
                 views.setImageViewResource(R.id.ivAwayCrest, awayCrestRestId);
@@ -106,6 +109,11 @@ public class FootballScoresWidgetService extends RemoteViewsService
                 views.setTextViewText(R.id.tvAwayName, awayName);
                 views.setTextViewText(R.id.tvDate, date);
                 views.setTextViewText(R.id.tvScore, score);
+
+                Intent intent = new Intent();
+                intent.putExtra(Constants.SELECTED_MATCH, id);
+
+                views.setOnClickFillInIntent(R.id.listWidget, intent);
 
                 return views;
             }

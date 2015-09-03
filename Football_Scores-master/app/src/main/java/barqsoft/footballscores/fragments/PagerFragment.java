@@ -20,23 +20,33 @@ import barqsoft.footballscores.sync.FootballScoresSyncAdapter;
 public class PagerFragment extends Fragment
 {
 
-    public ViewPager mPagerHandler;
+    public ViewPager viewPager;
 
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState)
     {
         View rootView = inflater.inflate(R.layout.pager_fragment, container, false);
-        mPagerHandler = (ViewPager) rootView.findViewById(R.id.pager);
+        viewPager = (ViewPager) rootView.findViewById(R.id.pager);
 
         final PagerAdapter adapter = new PagerAdapter(getChildFragmentManager());
         adapter.initialize(getActivity());
-        mPagerHandler.setAdapter(adapter);
-        mPagerHandler.setCurrentItem(MainActivity.currentFragment);
+        viewPager.setAdapter(adapter);
+        viewPager.setCurrentItem(MainActivity.currentFragment);
 
         TabLayout tabLayout = (TabLayout)rootView.findViewById(R.id.tabLayout);
-        tabLayout.setupWithViewPager(mPagerHandler);
+        tabLayout.setupWithViewPager(viewPager);
 
         return rootView;
+    }
+
+    public void showDetail(int selectedMatch, int currentPage)
+    {
+        viewPager.setCurrentItem(currentPage);
+        PagerAdapter adapter = (PagerAdapter)viewPager.getAdapter();
+
+        MainScreenFragment fragment = (MainScreenFragment) adapter.getItem(currentPage);
+
+        fragment.showDetail(selectedMatch);
     }
 
     @Override

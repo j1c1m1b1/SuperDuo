@@ -9,6 +9,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.os.Build;
 import android.support.annotation.NonNull;
+import android.support.v4.app.TaskStackBuilder;
 import android.widget.RemoteViews;
 
 import java.text.DateFormat;
@@ -55,6 +56,13 @@ public class FootballScoresWidgetProvider extends AppWidgetProvider {
 
             if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB)
             {
+                Intent detailIntent = new Intent(context, MainActivity.class);
+
+                PendingIntent intentTemplate = TaskStackBuilder.create(context)
+                        .addNextIntentWithParentStack(detailIntent)
+                        .getPendingIntent(0, PendingIntent.FLAG_UPDATE_CURRENT);
+
+                views.setPendingIntentTemplate(R.id.listWidget, intentTemplate);
                 views.setEmptyView(R.id.listWidget, R.id.tvEmptyWidget);
             }
 

@@ -3,15 +3,18 @@ package barqsoft.footballscores.adapters;
 import android.content.Context;
 import android.database.Cursor;
 import android.support.annotation.DrawableRes;
+import android.support.v7.widget.GridLayout;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
 
 import barqsoft.footballscores.R;
-import barqsoft.footballscores.interfaces.OnItemClickListener;
+import barqsoft.footballscores.interfaces.OnShareButtonClickListener;
+import barqsoft.footballscores.utils.AnimationUtils;
 import barqsoft.footballscores.utils.Utils;
 
 /**
@@ -26,17 +29,23 @@ public class ScoresAdapter extends RecyclerView.Adapter<ScoresAdapter.ViewHolder
     public static final int COL_LEAGUE = 5;
     public static final int COL_MATCHDAY = 9;
     public static final int COL_MATCHTIME = 2;
+    public static final int COL_ID = 8;
 
     private final Context context;
-    public double detailMatchId = 0;
+    private double detailMatchId;
 
     private Cursor cursor;
 
-    private OnItemClickListener onItemClickListener;
+    private OnShareButtonClickListener onShareButtonClickListener;
 
     public ScoresAdapter(Context context)
     {
         this.context = context;
+        detailMatchId = -1;
+    }
+
+    public void setDetailMatchId(double detailMatchId) {
+        this.detailMatchId = detailMatchId;
     }
 
     public void swapCursor(Cursor cursor)
@@ -45,8 +54,8 @@ public class ScoresAdapter extends RecyclerView.Adapter<ScoresAdapter.ViewHolder
         notifyDataSetChanged();
     }
 
-    public void setOnItemClickListener(OnItemClickListener onItemClickListener) {
-        this.onItemClickListener = onItemClickListener;
+    public void setOnShareButtonClickListener(OnShareButtonClickListener onShareButtonClickListener) {
+        this.onShareButtonClickListener = onShareButtonClickListener;
     }
 
 
@@ -54,7 +63,7 @@ public class ScoresAdapter extends RecyclerView.Adapter<ScoresAdapter.ViewHolder
     public ScoresAdapter.ViewHolder onCreateViewHolder(ViewGroup viewGroup, int i) {
         View view = LayoutInflater.from(viewGroup.getContext())
                 .inflate(R.layout.scores_list_item, viewGroup, false);
-        return new ViewHolder(view, onItemClickListener);
+        return new ViewHolder(view, onShareButtonClickListener);
     }
 
     @Override
@@ -64,6 +73,10 @@ public class ScoresAdapter extends RecyclerView.Adapter<ScoresAdapter.ViewHolder
         String homeName, awayName, date, score;
 
         int homeCrestResId, awayCrestRestId;
+
+        double matchId;
+
+        matchId = cursor.getDouble(COL_ID);
 
         homeName = cursor.getString(COL_HOME);
         awayName = cursor.getString(COL_AWAY);
@@ -78,8 +91,13 @@ public class ScoresAdapter extends RecyclerView.Adapter<ScoresAdapter.ViewHolder
 
         String league = Utils.getLeague(cursor.getInt(COL_LEAGUE));
 
-        viewHolder.bind(homeName, awayName, date, score, homeCrestResId, awayCrestRestId,
+        viewHolder.bind(matchId, homeName, awayName, date, score, homeCrestResId, awayCrestRestId,
                 matchDay, league);
+
+        if(detailMatchId != -1)
+        {
+            viewHolder.showDetail();
+        }
     }
 
     @Override
@@ -87,20 +105,61 @@ public class ScoresAdapter extends RecyclerView.Adapter<ScoresAdapter.ViewHolder
         return cursor == null ? 0 : cursor.getCount();
     }
 
+    @Override
+    public long getItemId(int position) {
+        if(cursor == null || cursor.isClosed() || !cursor.moveToPosition(position))
+        {
+            return -1;
+        }
+        else
+        {
+            return (long)cursor.getDouble(COL_ID);
+        }
+    }
+
+    public int getItemPosition(int selectedMatchId)
+    {
+        if(cursor == null || cursor.isClosed())
+        {
+            return -1;
+        }
+        else
+        {
+            int position = -1;
+            cursor.moveToFirst();
+            boolean found = false;
+
+            for(int i = 0; i < cursor.getCount() && !found; i ++)
+            {
+                if(cursor.getInt(COL_ID) == selectedMatchId)
+                {
+                    found = true;
+                    position = i;
+                }
+                cursor.moveToNext();
+            }
+            return position;
+        }
+    }
+
 
     public class ViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
-        public TextView tvHomeName;
-        public TextView tvAwayName;
-        public TextView tvScore;
-        public TextView tvDate;
-        public ImageView ivHomeCrest;
-        public ImageView ivAwayCrest;
-        private String matchDay;
-        private String league;
-        private String shareText;
-        private OnItemClickListener listener;
+        private TextView tvHomeName;
+        private TextView tvAwayName;
+        private TextView tvScore;
+        private TextView tvDate;
+        private ImageView ivHomeCrest;
+        private ImageView ivAwayCrest;
+        private GridLayout layoutDetail;
+        private TextView tvLeague;
+        private TextView tvMatchDay;
+        private Button btnShare;
 
-        public ViewHolder(View view, OnItemClickListener listener)
+        private double matchId;
+        private String shareText;
+        private OnShareButtonClickListener listener;
+
+        public ViewHolder(View view, OnShareButtonClickListener listener)
         {
             super(view);
             tvHomeName = (TextView) view.findViewById(R.id.home_name);
@@ -109,20 +168,28 @@ public class ScoresAdapter extends RecyclerView.Adapter<ScoresAdapter.ViewHolder
             tvScore = (TextView) view.findViewById(R.id.score_textview);
             ivHomeCrest = (ImageView) view.findViewById(R.id.home_crest);
             ivAwayCrest = (ImageView) view.findViewById(R.id.away_crest);
+            layoutDetail = (GridLayout) view.findViewById(R.id.layoutDetail);
+            tvLeague = (TextView) view.findViewById(R.id.tvLeague);
+            tvMatchDay = (TextView) view.findViewById(R.id.tvMatchDay);
+            btnShare = (Button) view.findViewById(R.id.btnShare);
+
             this.listener = listener;
             view.setOnClickListener(this);
         }
 
-        public void bind(String homeName, String awayName, String date, String score,
+        public void bind(double matchId, String homeName, String awayName, String date, String score,
                          @DrawableRes int homeCrestResId, @DrawableRes int awayCrestRestId,
                          String matchDay, String league)
         {
+            this.matchId = matchId;
+
             tvHomeName.setText(homeName);
             String contentDescription = String.format(context.getString(R.string.homeTeamName), homeName);
             tvHomeName.setContentDescription(contentDescription);
 
             contentDescription =
-                    String.format(context.getString(R.string.awayTeamName), awayName);
+                    String.format(context.getString(R.string.awayTeamName),
+                            awayName);
             tvAwayName.setText(awayName);
             tvAwayName.setContentDescription(contentDescription);
 
@@ -134,15 +201,42 @@ public class ScoresAdapter extends RecyclerView.Adapter<ScoresAdapter.ViewHolder
 
             ivHomeCrest.setBackgroundResource(homeCrestResId);
             ivAwayCrest.setBackgroundResource(awayCrestRestId);
-            this.matchDay = matchDay;
-            this.league = league;
-            this.shareText = String.format(context.getString(R.string.share_text_format), homeName, score, awayName);
+
+            tvMatchDay.setText(matchDay);
+
+            tvLeague.setText(league);
+
+            this.shareText = String.format(context.getString(R.string.share_text_format),
+                    homeName, score, awayName);
+
+            btnShare.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    listener.onItemClick(shareText);
+                }
+            });
 
         }
 
+        public void showDetail()
+        {
+            if(layoutDetail.getVisibility()== View.GONE)
+            {
+                AnimationUtils.expand(layoutDetail);
+            }
+        }
+
         @Override
-        public void onClick(View view) {
-            listener.onItemClick(matchDay, league, shareText);
+        public void onClick(View view)
+        {
+            if(layoutDetail.getVisibility()== View.GONE)
+            {
+                AnimationUtils.expand(layoutDetail);
+            }
+            else
+            {
+                AnimationUtils.collapse(layoutDetail);
+            }
         }
     }
 

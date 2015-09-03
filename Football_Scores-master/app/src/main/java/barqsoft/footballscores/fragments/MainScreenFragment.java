@@ -1,5 +1,6 @@
 package barqsoft.footballscores.fragments;
 
+import android.content.Intent;
 import android.database.Cursor;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
@@ -14,10 +15,9 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import barqsoft.footballscores.R;
-import barqsoft.footballscores.activities.MainActivity;
 import barqsoft.footballscores.adapters.ScoresAdapter;
 import barqsoft.footballscores.data.DatabaseContract;
-import barqsoft.footballscores.interfaces.OnItemClickListener;
+import barqsoft.footballscores.interfaces.OnShareButtonClickListener;
 import barqsoft.footballscores.utils.Constants;
 
 /**
@@ -29,6 +29,7 @@ public class MainScreenFragment extends Fragment implements LoaderManager.Loader
     public ScoresAdapter adapter;
     private String fragmentDate;
     private int last_selected_item = -1;
+    private RecyclerView scoreList;
 
     public static MainScreenFragment newInstance(String fragmentDate)
     {
@@ -55,7 +56,7 @@ public class MainScreenFragment extends Fragment implements LoaderManager.Loader
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              final Bundle savedInstanceState) {
         View rootView = inflater.inflate(R.layout.fragment_main, container, false);
-        final RecyclerView scoreList = (RecyclerView) rootView.findViewById(R.id.scores_list);
+        scoreList = (RecyclerView) rootView.findViewById(R.id.scores_list);
         LinearLayoutManager layoutManager = new LinearLayoutManager(getActivity(),
                 LinearLayoutManager.VERTICAL, false);
         scoreList.setLayoutManager(layoutManager);
@@ -65,16 +66,39 @@ public class MainScreenFragment extends Fragment implements LoaderManager.Loader
         adapter = new ScoresAdapter(getActivity());
         scoreList.setAdapter(adapter);
 
-        adapter.detailMatchId = MainActivity.selectedMatchId;
-
-        adapter.setOnItemClickListener(new OnItemClickListener() {
+        adapter.setOnShareButtonClickListener(new OnShareButtonClickListener() {
             @Override
-            public void onItemClick(String matchDay, String league, String shareText) {
-                ((MainActivity) getActivity()).showDetailDialog(matchDay, league, shareText);
+            public void onItemClick(String shareText) {
+                Intent intent = createShareIntent(shareText);
+                startActivity(Intent.createChooser(intent, getString(R.string.share_text)));
             }
         });
 
         return rootView;
+    }
+
+    private Intent createShareIntent(String shareText) {
+        Intent shareIntent = new Intent(Intent.ACTION_SEND);
+        shareIntent.setType("text/plain");
+        shareIntent.putExtra(Intent.EXTRA_TEXT, shareText);
+        return shareIntent;
+    }
+
+    public void showDetail(int selectedMatchId) {
+        int position = -1;
+        boolean found = false;
+        for(int i = 0; i < adapter.getItemCount() && !found; i ++)
+        {
+            if(adapter.getItemId(i) == selectedMatchId)
+            {
+                found = true;
+                position = i;
+                adapter.setDetailMatchId(selectedMatchId);
+            }
+        }
+        scoreList.smoothScrollToPosition(position);
+        adapter.notifyItemChanged(position);
+
     }
 
     @Override
@@ -95,6 +119,7 @@ public class MainScreenFragment extends Fragment implements LoaderManager.Loader
     {
         adapter.swapCursor(null);
     }
+
 
 
 }
