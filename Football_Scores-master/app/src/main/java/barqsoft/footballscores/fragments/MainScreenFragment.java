@@ -13,12 +13,15 @@ import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ProgressBar;
+import android.widget.TextView;
 
 import barqsoft.footballscores.R;
 import barqsoft.footballscores.adapters.ScoresAdapter;
 import barqsoft.footballscores.data.DatabaseContract;
 import barqsoft.footballscores.interfaces.OnShareButtonClickListener;
 import barqsoft.footballscores.utils.Constants;
+import barqsoft.footballscores.utils.VerticalSpaceItemDecoration;
 
 /**
  * A placeholder fragment containing a simple view.
@@ -30,6 +33,8 @@ public class MainScreenFragment extends Fragment implements LoaderManager.Loader
     private String fragmentDate;
     private int last_selected_item = -1;
     private RecyclerView scoreList;
+    private ProgressBar pbLoading;
+    private TextView tvEmptyView;
 
     public static MainScreenFragment newInstance(String fragmentDate)
     {
@@ -57,11 +62,14 @@ public class MainScreenFragment extends Fragment implements LoaderManager.Loader
                              final Bundle savedInstanceState) {
         View rootView = inflater.inflate(R.layout.fragment_main, container, false);
         scoreList = (RecyclerView) rootView.findViewById(R.id.scores_list);
+        pbLoading = (ProgressBar) rootView.findViewById(R.id.pbLoading);
+        tvEmptyView = (TextView) rootView.findViewById(R.id.tvEmptyView);
         LinearLayoutManager layoutManager = new LinearLayoutManager(getActivity(),
                 LinearLayoutManager.VERTICAL, false);
         scoreList.setLayoutManager(layoutManager);
         scoreList.setHasFixedSize(true);
         scoreList.setItemAnimator(new DefaultItemAnimator());
+        scoreList.addItemDecoration(new VerticalSpaceItemDecoration());
 
         adapter = new ScoresAdapter(getActivity());
         scoreList.setAdapter(adapter);
@@ -104,6 +112,8 @@ public class MainScreenFragment extends Fragment implements LoaderManager.Loader
     @Override
     public Loader<Cursor> onCreateLoader(int i, Bundle bundle)
     {
+        pbLoading.setVisibility(View.VISIBLE);
+        tvEmptyView.setVisibility(View.GONE);
         return new CursorLoader(getActivity(), DatabaseContract.scores_table.buildScoreWithDate(),
                 null, null, new String[]{fragmentDate}, null);
     }
@@ -111,7 +121,12 @@ public class MainScreenFragment extends Fragment implements LoaderManager.Loader
     @Override
     public void onLoadFinished(Loader<Cursor> cursorLoader, Cursor cursor)
     {
+        pbLoading.setVisibility(View.GONE);
         adapter.swapCursor(cursor);
+        if(cursor == null || cursor.getCount() == 0)
+        {
+            tvEmptyView.setVisibility(View.VISIBLE);
+        }
     }
 
     @Override

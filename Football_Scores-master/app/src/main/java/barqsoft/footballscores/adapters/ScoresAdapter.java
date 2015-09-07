@@ -91,10 +91,10 @@ public class ScoresAdapter extends RecyclerView.Adapter<ScoresAdapter.ViewHolder
 
         String league = Utils.getLeague(cursor.getInt(COL_LEAGUE));
 
-        viewHolder.bind(matchId, homeName, awayName, date, score, homeCrestResId, awayCrestRestId,
+        viewHolder.bind(homeName, awayName, date, score, homeCrestResId, awayCrestRestId,
                 matchDay, league);
 
-        if(detailMatchId != -1)
+        if(detailMatchId != -1 && detailMatchId == matchId)
         {
             viewHolder.showDetail();
         }
@@ -117,32 +117,6 @@ public class ScoresAdapter extends RecyclerView.Adapter<ScoresAdapter.ViewHolder
         }
     }
 
-    public int getItemPosition(int selectedMatchId)
-    {
-        if(cursor == null || cursor.isClosed())
-        {
-            return -1;
-        }
-        else
-        {
-            int position = -1;
-            cursor.moveToFirst();
-            boolean found = false;
-
-            for(int i = 0; i < cursor.getCount() && !found; i ++)
-            {
-                if(cursor.getInt(COL_ID) == selectedMatchId)
-                {
-                    found = true;
-                    position = i;
-                }
-                cursor.moveToNext();
-            }
-            return position;
-        }
-    }
-
-
     public class ViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
         private TextView tvHomeName;
         private TextView tvAwayName;
@@ -155,7 +129,6 @@ public class ScoresAdapter extends RecyclerView.Adapter<ScoresAdapter.ViewHolder
         private TextView tvMatchDay;
         private Button btnShare;
 
-        private double matchId;
         private String shareText;
         private OnShareButtonClickListener listener;
 
@@ -177,12 +150,10 @@ public class ScoresAdapter extends RecyclerView.Adapter<ScoresAdapter.ViewHolder
             view.setOnClickListener(this);
         }
 
-        public void bind(double matchId, String homeName, String awayName, String date, String score,
+        public void bind(String homeName, String awayName, String date, String score,
                          @DrawableRes int homeCrestResId, @DrawableRes int awayCrestRestId,
                          String matchDay, String league)
         {
-            this.matchId = matchId;
-
             tvHomeName.setText(homeName);
             String contentDescription = String.format(context.getString(R.string.homeTeamName), homeName);
             tvHomeName.setContentDescription(contentDescription);

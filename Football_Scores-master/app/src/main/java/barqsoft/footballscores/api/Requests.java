@@ -76,7 +76,11 @@ public class Requests {
     {
         try
         {
-            JSONArray matches = new JSONObject(JSONData).getJSONArray(Constants.FIXTURES);
+            Log.d(TAG, "" + JSONData);
+
+            JSONObject jsonObject = new JSONObject(JSONData);
+
+            JSONArray matches = jsonObject.getJSONArray(Constants.FIXTURES);
             //ContentValues to be inserted
             ArrayList<ContentValues> valuesList = new ArrayList<>();
 
@@ -134,11 +138,20 @@ public class Requests {
                 getString(Constants.HREF);
         league = league.replace(Constants.SEASON_LINK, "");
 
-        if(     league.equals(Constants.PREMIER_LEGAUE)      ||
-                league.equals(Constants.SERIE_A)             ||
-                league.equals(Constants.CHAMPIONS_LEAGUE)    ||
-                league.equals(Constants.BUNDESLIGA)          ||
-                league.equals(Constants.PRIMERA_DIVISION)     )
+        if(     league.equals(Constants.PREMIER_LEGAUE) ||
+                league.equals(Constants.SERIE_A) ||
+                league.equals(Constants.CHAMPIONS_LEAGUE) ||
+                league.equals(Constants.BUNDESLIGA) ||
+                league.equals(Constants.PRIMERA_DIVISION) ||
+                league.equals(Constants.BUNDESLIGA2) ||
+                league.equals(Constants.BUNDESLIGA3) ||
+                league.equals(Constants.LIGUE1) ||
+                league.equals(Constants.LIGUE2) ||
+                league.equals(Constants.PREMIER_LEAGUE) ||
+                league.equals(Constants.SEGUNDA_DIVISION) ||
+                league.equals(Constants.BUNDESLIGA1) ||
+                league.equals(Constants.PRIMERA_LIGA) ||
+                league.equals(Constants.EREDIVISIE))
         {
             matchId = matchData.getJSONObject(Constants.LINKS).getJSONObject(Constants.SELF).
                     getString("href");

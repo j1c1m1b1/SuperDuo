@@ -28,9 +28,9 @@
                 android:adjustViewBounds="true"
                 android:maxHeight="@dimen/team_icon"
                 android:maxWidth="@dimen/team_icon"
-                android:scaleType="fitCenter"
+                android:scaleType="centerInside"
                 app:layout_columnWeight="1"
-                app:layout_gravity="fill"
+                app:layout_gravity="center_vertical"
                 tools:src="@drawable/no_icon"
                 />
 
@@ -50,9 +50,9 @@
                 android:adjustViewBounds="true"
                 android:maxHeight="@dimen/team_icon"
                 android:maxWidth="@dimen/team_icon"
-                android:scaleType="centerCrop"
+                android:scaleType="centerInside"
                 app:layout_columnWeight="1"
-                app:layout_gravity="fill"
+                app:layout_gravity="center_vertical"
                 tools:src="@drawable/no_icon"
                 />
 
@@ -70,7 +70,6 @@
                 android:gravity="center"
                 android:textSize="@dimen/TeamNames"
                 app:layout_columnWeight="2"
-                app:layout_gravity="fill_horizontal"
                 app:layout_rowWeight="1"
                 tools:text="TESTING 1"/>
 
@@ -80,8 +79,6 @@
                 android:layout_height="wrap_content"
                 android:gravity="center"
                 app:layout_columnWeight="1"
-                app:layout_gravity="fill_horizontal"
-                app:layout_rowWeight="1"
                 tools:text="12:00"/>
 
             <TextView
@@ -91,8 +88,6 @@
                 android:gravity="center"
                 android:textSize="@dimen/TeamNames"
                 app:layout_columnWeight="2"
-                app:layout_gravity="fill_horizontal"
-                app:layout_rowWeight="1"
                 tools:text="TESTING 2"/>
         </android.support.v7.widget.GridLayout>
 

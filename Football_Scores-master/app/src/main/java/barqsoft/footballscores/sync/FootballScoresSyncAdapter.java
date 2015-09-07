@@ -130,11 +130,16 @@ public class FootballScoresSyncAdapter extends AbstractThreadedSyncAdapter
                     switch (status)
                     {
                         case Constants.RESULT_CODE_NO_DATA:
-                            Requests.processJSONData(getContext().getString(R.string.dummy_data),
-                                    false, this);
 
                             updateWidget();
                             break;
+
+                        case Constants.RESULT_CODE_SERVER_DOWN:
+                        case Constants.RESULT_CODE_INVALID_DATA:
+                            Intent intent = new Intent(Constants.ACTION_SERVER_DOWN);
+                            intent.setPackage(getContext().getPackageName());
+
+                            getContext().sendBroadcast(intent);
                     }
                 }
                 else

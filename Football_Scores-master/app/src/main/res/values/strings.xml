@@ -50,4 +50,5 @@
     <string name="no_matches">There are no match results to display</string>
     <string name="today_scores">Scores for %1$s</string>
     <string name="share_text_format">Match results: %1$s %2$s %3$s #FootballScores</string>
+    <string name="server_down">There was an error obtaining data from the server</string>
 </resources>

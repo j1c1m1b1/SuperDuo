@@ -15,6 +15,7 @@ public class Constants
     public static final String SELECTED_MATCH = "Selected_match";
     public static final String PAGER_FRAGMENT_KEY = "pagerFragment";
     public static final int INVALID_VALUE = -1;
+    public static final String ACTION_SERVER_DOWN = "barqsoft.footballscores.ACTION_SERVER_DOWN";
 
     //Pager Fragment
     public static final String FRAGMENT_DATE = "fragment_date_arg";
@@ -28,11 +29,24 @@ public class Constants
     public static final String P2 = "p2";
 
     //JSON Parsing
-    public static final String SERIE_A = "357";
+
+    //Leagues
     public static final String PREMIER_LEGAUE = "354";
     public static final String CHAMPIONS_LEAGUE = "362";
-    public static final String PRIMERA_DIVISION = "358";
     public static final String BUNDESLIGA = "351";
+    public static final String BUNDESLIGA1 = "394";
+    public static final String BUNDESLIGA2 = "395";
+    public static final String LIGUE1 = "396";
+    public static final String LIGUE2 = "397";
+    public static final String PREMIER_LEAGUE = "398";
+    public static final String PRIMERA_DIVISION = "399";
+    public static final String SEGUNDA_DIVISION = "400";
+    public static final String SERIE_A = "401";
+    public static final String PRIMERA_LIGA = "402";
+    public static final String BUNDESLIGA3 = "403";
+    public static final String EREDIVISIE = "404";
+
+
     public static final String SEASON_LINK = "http://api.football-data.org/alpha/soccerseasons/";
     public static final String MATCH_LINK = "http://api.football-data.org/alpha/fixtures/";
     public static final String FIXTURES = "fixtures";
@@ -55,8 +69,8 @@ public class Constants
     public static final int RESULT_CODE_SERVER_DOWN = 1;
 
     public static final int RESULT_CODE_INVALID_DATA = 2;
-    public static final int RESULT_CODE_NO_DATA = 3;
 
+    public static final int RESULT_CODE_NO_DATA = 3;
 
     @Retention(RetentionPolicy.SOURCE)
     @IntDef({RESULT_CODE_SUCCESS, RESULT_CODE_SERVER_DOWN, RESULT_CODE_INVALID_DATA,
