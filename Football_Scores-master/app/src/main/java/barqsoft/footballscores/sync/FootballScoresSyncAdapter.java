@@ -140,6 +140,7 @@ public class FootballScoresSyncAdapter extends AbstractThreadedSyncAdapter
                             intent.setPackage(getContext().getPackageName());
 
                             getContext().sendBroadcast(intent);
+                            break;
                     }
                 }
                 else
