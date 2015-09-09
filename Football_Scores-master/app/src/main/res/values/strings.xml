@@ -51,4 +51,6 @@
     <string name="today_scores">Scores for %1$s</string>
     <string name="share_text_format">Match results: %1$s %2$s %3$s #FootballScores</string>
     <string name="server_down">There was an error obtaining data from the server</string>
+    <string name="invalid_data">The data obtained is corrupted</string>
+    <string name="retry">Retry</string>
 </resources>

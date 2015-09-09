@@ -17,6 +17,9 @@ import android.util.Log;
 
 import barqsoft.footballscores.R;
 import barqsoft.footballscores.api.Requests;
+import barqsoft.footballscores.bus.BusProvider;
+import barqsoft.footballscores.bus.events.ServerDownEvent;
+import barqsoft.footballscores.bus.events.ServerUpEvent;
 import barqsoft.footballscores.data.DatabaseContract;
 import barqsoft.footballscores.interfaces.RequestCallbackListener;
 import barqsoft.footballscores.utils.Constants;
@@ -127,20 +130,25 @@ public class FootballScoresSyncAdapter extends AbstractThreadedSyncAdapter
             {
                 if(status != Constants.RESULT_CODE_SUCCESS)
                 {
+                    ServerDownEvent event = null;
+
                     switch (status)
                     {
                         case Constants.RESULT_CODE_NO_DATA:
-
                             updateWidget();
                             break;
 
                         case Constants.RESULT_CODE_SERVER_DOWN:
-                        case Constants.RESULT_CODE_INVALID_DATA:
-                            Intent intent = new Intent(Constants.ACTION_SERVER_DOWN);
-                            intent.setPackage(getContext().getPackageName());
-
-                            getContext().sendBroadcast(intent);
+                            event = new ServerDownEvent(R.string.server_down);
                             break;
+                        case Constants.RESULT_CODE_INVALID_DATA:
+                            event = new ServerDownEvent(R.string.invalid_data);
+                            break;
+                    }
+
+                    if(event != null)
+                    {
+                        BusProvider.postOnMain(event);
                     }
                 }
                 else
@@ -150,6 +158,7 @@ public class FootballScoresSyncAdapter extends AbstractThreadedSyncAdapter
                         contentProviderClient.bulkInsert(DatabaseContract.BASE_CONTENT_URI, values);
 
                         updateWidget();
+                        BusProvider.postOnMain(new ServerUpEvent());
                     }
                     catch (RemoteException e)
                     {

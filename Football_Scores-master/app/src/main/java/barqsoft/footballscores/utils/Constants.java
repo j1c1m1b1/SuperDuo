@@ -15,7 +15,6 @@ public class Constants
     public static final String SELECTED_MATCH = "Selected_match";
     public static final String PAGER_FRAGMENT_KEY = "pagerFragment";
     public static final int INVALID_VALUE = -1;
-    public static final String ACTION_SERVER_DOWN = "barqsoft.footballscores.ACTION_SERVER_DOWN";
 
     //Pager Fragment
     public static final String FRAGMENT_DATE = "fragment_date_arg";
@@ -64,14 +63,31 @@ public class Constants
     public static final String UTC = "UTC";
 
     //Request Int Def
+    /**
+     * Status code returned when the matches information is successfully fetched.
+     */
     public static final int RESULT_CODE_SUCCESS = 0;
 
+    /**
+     * Status code returned when the requests fail, either by bad connectivity or because
+     * a server error.
+     */
     public static final int RESULT_CODE_SERVER_DOWN = 1;
 
+    /**
+     * Status code returned when the information returned by the server is not successfully parsed.
+     */
     public static final int RESULT_CODE_INVALID_DATA = 2;
 
+    /**
+     * Status code returned when the match information is fetched successfully but there are no
+     * results to display.
+     */
     public static final int RESULT_CODE_NO_DATA = 3;
 
+    /**
+     * Describes the possible status codes.
+     */
     @Retention(RetentionPolicy.SOURCE)
     @IntDef({RESULT_CODE_SUCCESS, RESULT_CODE_SERVER_DOWN, RESULT_CODE_INVALID_DATA,
             RESULT_CODE_NO_DATA})

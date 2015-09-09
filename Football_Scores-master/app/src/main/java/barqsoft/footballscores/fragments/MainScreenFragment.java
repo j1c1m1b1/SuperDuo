@@ -1,11 +1,9 @@
 package barqsoft.footballscores.fragments;
 
 import android.content.Intent;
-import android.content.IntentFilter;
 import android.database.Cursor;
 import android.os.Bundle;
 import android.support.design.widget.CoordinatorLayout;
-import android.support.design.widget.Snackbar;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.CursorLoader;
@@ -13,7 +11,6 @@ import android.support.v4.content.Loader;
 import android.support.v7.widget.DefaultItemAnimator;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -21,20 +18,16 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import barqsoft.footballscores.R;
-import barqsoft.footballscores.activities.MainActivity;
 import barqsoft.footballscores.adapters.ScoresAdapter;
 import barqsoft.footballscores.data.DatabaseContract;
 import barqsoft.footballscores.interfaces.OnShareButtonClickListener;
-import barqsoft.footballscores.interfaces.ShowSnackBarListener;
-import barqsoft.footballscores.receivers.ServerDownReceiver;
 import barqsoft.footballscores.utils.Constants;
 import barqsoft.footballscores.utils.VerticalSpaceItemDecoration;
 
 /**
  * A placeholder fragment containing a simple view.
  */
-public class MainScreenFragment extends Fragment implements LoaderManager.LoaderCallbacks<Cursor>,
-        ShowSnackBarListener
+public class MainScreenFragment extends Fragment implements LoaderManager.LoaderCallbacks<Cursor>
 {
     public static final int SCORES_LOADER = 0;
     public ScoresAdapter adapter;
@@ -44,8 +37,6 @@ public class MainScreenFragment extends Fragment implements LoaderManager.Loader
     private ProgressBar pbLoading;
     private TextView tvEmptyView;
     private CoordinatorLayout rootView;
-    private ServerDownReceiver receiver;
-    private Snackbar snackbar;
 
     public static MainScreenFragment newInstance(String fragmentDate)
     {
@@ -60,23 +51,6 @@ public class MainScreenFragment extends Fragment implements LoaderManager.Loader
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         fragmentDate = getArguments().getString(Constants.FRAGMENT_DATE);
-    }
-
-    @Override
-    public void onResume() {
-        super.onResume();
-        receiver = new ServerDownReceiver();
-        receiver.setListener(this);
-        IntentFilter filter = new IntentFilter();
-        filter.addAction(Constants.ACTION_SERVER_DOWN);
-
-        getActivity().registerReceiver(receiver, filter);
-    }
-
-    @Override
-    public void onPause() {
-        super.onPause();
-        getActivity().unregisterReceiver(receiver);
     }
 
     @Override
@@ -161,16 +135,5 @@ public class MainScreenFragment extends Fragment implements LoaderManager.Loader
     public void onLoaderReset(Loader<Cursor> cursorLoader)
     {
         adapter.swapCursor(null);
-    }
-
-
-    @Override
-    public void showMySnackBar() {
-        snackbar = Snackbar.make(rootView, R.string.server_down, Snackbar.LENGTH_SHORT);
-        if(!snackbar.isShown())
-        {
-            Log.d(MainActivity.class.getSimpleName(), "Showing snack bar");
-            snackbar.show();
-        }
     }
 }

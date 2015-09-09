@@ -4,11 +4,18 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.design.widget.CoordinatorLayout;
+import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.MenuItem;
+import android.view.View;
+
+import com.squareup.otto.Subscribe;
 
 import barqsoft.footballscores.R;
+import barqsoft.footballscores.bus.BusProvider;
+import barqsoft.footballscores.bus.events.ServerDownEvent;
+import barqsoft.footballscores.bus.events.ServerUpEvent;
 import barqsoft.footballscores.fragments.PagerFragment;
 import barqsoft.footballscores.sync.FootballScoresSyncAdapter;
 import barqsoft.footballscores.utils.Constants;
@@ -18,8 +25,8 @@ public class MainActivity extends AppCompatActivity
     public static int selectedMatchId;
 
     public static int currentFragment = 2;
-    private static CoordinatorLayout rootLayout;
     private PagerFragment pagerFragment;
+    private Snackbar snackbar;
 
 
     @Override
@@ -28,7 +35,7 @@ public class MainActivity extends AppCompatActivity
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        rootLayout = (CoordinatorLayout)findViewById(R.id.container);
+        CoordinatorLayout rootLayout = (CoordinatorLayout) findViewById(R.id.container);
         if (savedInstanceState == null) {
             pagerFragment = new PagerFragment();
             getSupportFragmentManager().beginTransaction()
@@ -45,12 +52,27 @@ public class MainActivity extends AppCompatActivity
 
             pagerFragment.showDetail(selectedMatchId, 2);
         }
+
+        snackbar = Snackbar.make(rootLayout, R.string.server_down,
+                Snackbar.LENGTH_INDEFINITE);
+        snackbar.setAction(R.string.retry, new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                FootballScoresSyncAdapter.syncImmediately(MainActivity.this);
+            }
+        });
     }
 
     @Override
     protected void onResume() {
         super.onResume();
+        BusProvider.getInstance().register(this);
+    }
 
+    @Override
+    protected void onPause() {
+        super.onPause();
+        BusProvider.getInstance().unregister(this);
     }
 
     @Override
@@ -89,5 +111,27 @@ public class MainActivity extends AppCompatActivity
         pagerFragment = (PagerFragment) getSupportFragmentManager().getFragment(savedInstanceState,
                 Constants.PAGER_FRAGMENT_KEY);
         super.onRestoreInstanceState(savedInstanceState);
+    }
+
+    @Subscribe
+    public void showSnackBar(ServerDownEvent event)
+    {
+        //Used to show the snack bar in the main thread.
+        setTitle(getString(R.string.app_name));
+        snackbar.setText(event.getResId());
+        if(!snackbar.isShown())
+        {
+            Log.d(MainActivity.class.getSimpleName(), "showSnackBar");
+            snackbar.show();
+        }
+    }
+
+    @Subscribe
+    public void dismissSnackBar(ServerUpEvent event)
+    {
+        if(snackbar.isShown())
+        {
+            snackbar.dismiss();
+        }
     }
 }
