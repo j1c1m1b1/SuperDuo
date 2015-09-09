@@ -169,10 +169,11 @@ public class FootballScoresSyncAdapter extends AbstractThreadedSyncAdapter
             }
         };
 
-        String token = getContext().getString(R.string.api_key);
+        //TODO Add token here
+        //String token = getContext().getString(R.string.api_key);
 
-        Requests.fetchMatchData(Constants.N2, token, listener);
-        Requests.fetchMatchData(Constants.P2, token, listener);
+        Requests.fetchMatchData(Constants.N2, null, listener);
+        Requests.fetchMatchData(Constants.P2, null, listener);
     }
 
     private void updateWidget()
