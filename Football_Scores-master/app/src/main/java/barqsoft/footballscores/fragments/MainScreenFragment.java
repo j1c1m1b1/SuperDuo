@@ -1,6 +1,8 @@
 package barqsoft.footballscores.fragments;
 
+import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.os.Bundle;
 import android.support.design.widget.CoordinatorLayout;
@@ -11,6 +13,7 @@ import android.support.v4.content.Loader;
 import android.support.v7.widget.DefaultItemAnimator;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -32,11 +35,10 @@ public class MainScreenFragment extends Fragment implements LoaderManager.Loader
     public static final int SCORES_LOADER = 0;
     public ScoresAdapter adapter;
     private String fragmentDate;
-    private int last_selected_item = -1;
+    private int selectedMatchId = RecyclerView.NO_POSITION;
     private RecyclerView scoreList;
     private ProgressBar pbLoading;
     private TextView tvEmptyView;
-    private CoordinatorLayout rootView;
 
     public static MainScreenFragment newInstance(String fragmentDate)
     {
@@ -62,7 +64,7 @@ public class MainScreenFragment extends Fragment implements LoaderManager.Loader
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              final Bundle savedInstanceState) {
-        rootView = (CoordinatorLayout) inflater.inflate(R.layout.fragment_main, container, false);
+        CoordinatorLayout rootView = (CoordinatorLayout) inflater.inflate(R.layout.fragment_main, container, false);
         scoreList = (RecyclerView) rootView.findViewById(R.id.scores_list);
         pbLoading = (ProgressBar) rootView.findViewById(R.id.pbLoading);
         tvEmptyView = (TextView) rootView.findViewById(R.id.tvEmptyView);
@@ -94,7 +96,9 @@ public class MainScreenFragment extends Fragment implements LoaderManager.Loader
         return shareIntent;
     }
 
-    public void showDetail(int selectedMatchId) {
+    private void showDetail()
+    {
+        Log.d(MainScreenFragment.class.getSimpleName(), "Showing Detail " + selectedMatchId);
         int position = -1;
         boolean found = false;
         for(int i = 0; i < adapter.getItemCount() && !found; i ++)
@@ -128,6 +132,21 @@ public class MainScreenFragment extends Fragment implements LoaderManager.Loader
         if(cursor == null || cursor.getCount() == 0)
         {
             tvEmptyView.setVisibility(View.VISIBLE);
+        }
+        else
+        {
+            tvEmptyView.setVisibility(View.GONE);
+            SharedPreferences prefs = getActivity()
+                    .getSharedPreferences(getString(R.string.app_name), Context.MODE_PRIVATE);
+
+            selectedMatchId = prefs.getInt(Constants.SELECTED_MATCH, RecyclerView.NO_POSITION);
+            SharedPreferences.Editor editor = prefs.edit();
+            editor.clear();
+            editor.apply();
+            if(selectedMatchId != RecyclerView.NO_POSITION)
+            {
+                showDetail();
+            }
         }
     }
 

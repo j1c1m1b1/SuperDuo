@@ -13,6 +13,7 @@ import barqsoft.footballscores.R;
 import barqsoft.footballscores.activities.MainActivity;
 import barqsoft.footballscores.adapters.PagerAdapter;
 import barqsoft.footballscores.sync.FootballScoresSyncAdapter;
+import barqsoft.footballscores.utils.Constants;
 
 /**
  * Created by yehya khaled on 2/27/2015.
@@ -39,14 +40,9 @@ public class PagerFragment extends Fragment
         return rootView;
     }
 
-    public void showDetail(int selectedMatch, int currentPage)
+    public void showDetail()
     {
-        viewPager.setCurrentItem(currentPage);
-        PagerAdapter adapter = (PagerAdapter)viewPager.getAdapter();
-
-        MainScreenFragment fragment = (MainScreenFragment) adapter.getItem(currentPage);
-
-        fragment.showDetail(selectedMatch);
+        viewPager.setCurrentItem(Constants.TODAY_FRAGMENT);
     }
 
     @Override

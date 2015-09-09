@@ -113,7 +113,7 @@ public class FootballScoresWidgetService extends RemoteViewsService
                 Intent intent = new Intent();
                 intent.putExtra(Constants.SELECTED_MATCH, id);
 
-                views.setOnClickFillInIntent(R.id.listWidget, intent);
+                views.setOnClickFillInIntent(R.id.widget_list_item, intent);
 
                 return views;
             }

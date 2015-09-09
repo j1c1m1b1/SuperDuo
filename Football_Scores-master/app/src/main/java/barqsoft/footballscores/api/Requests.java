@@ -17,6 +17,7 @@ import java.io.IOException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.Locale;
 import java.util.TimeZone;
 
@@ -36,6 +37,9 @@ public class Requests {
 
     private static final SimpleDateFormat dateFormat =
             new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'", Locale.getDefault());
+
+    private static final SimpleDateFormat dummyDateFormat = new SimpleDateFormat("yyyy-MM-dd",
+            Locale.getDefault());
 
     public static void fetchMatchData(String timeFrame, String token,
                                       final RequestCallbackListener callbackListener)
@@ -79,6 +83,48 @@ public class Requests {
         });
     }
 
+    public static void processFakeData(String JSONData, RequestCallbackListener callbackListener)
+    {
+        try
+        {
+            Log.d(TAG, "" + JSONData);
+
+            JSONObject jsonObject = new JSONObject(JSONData);
+
+            JSONArray matches = jsonObject.getJSONArray(Constants.FIXTURES);
+            //ContentValues to be inserted
+            ArrayList<ContentValues> valuesList = new ArrayList<>();
+
+            Date fragmentDate;
+
+            ContentValues matchValues;
+            ContentValues emptyValues = new ContentValues();
+            for(int i = 0;i < matches.length();i++)
+            {
+                matchValues = new ContentValues();
+                JSONObject matchData = matches.getJSONObject(i);
+                fragmentDate = new Date(System.currentTimeMillis() + ((i-2)*86400000));
+                matchValues = parseMatchData(matchData, fragmentDate, i, matchValues);
+                if(matchValues.equals(emptyValues))
+                {
+                    continue;
+                }
+                valuesList.add(matchValues);
+            }
+
+            ContentValues[] values = valuesList.toArray(new ContentValues[valuesList.size()]);
+            if(values.length > 0)
+            {
+                callbackListener.onResponse(values, Constants.RESULT_CODE_SUCCESS);
+            }
+        }
+        catch (JSONException e)
+        {
+            Log.e(TAG, e.getMessage());
+
+        }
+    }
+
     public static void processJSONData(String JSONData, RequestCallbackListener callbackListener)
     {
         try
@@ -97,7 +143,8 @@ public class Requests {
             {
                 matchValues = new ContentValues();
                 JSONObject matchData = matches.getJSONObject(i);
-                matchValues = parseMatchData(matchData, matchValues);
+
+                matchValues = parseMatchData(matchData, null, i, matchValues);
                 if(matchValues.equals(emptyValues))
                 {
                     continue;
@@ -122,7 +169,8 @@ public class Requests {
         }
     }
 
-    private static ContentValues parseMatchData(JSONObject matchData, ContentValues matchValues)
+    private static ContentValues parseMatchData(JSONObject matchData, Date fragmentDate,
+                                                int position, ContentValues matchValues)
             throws JSONException
     {
         String league;
@@ -169,6 +217,12 @@ public class Requests {
             {
                 Log.e(TAG,"" + e.getMessage());
                 e.printStackTrace();
+            }
+            if(fragmentDate != null)
+            {
+                mDate = dummyDateFormat.format(fragmentDate);
+                Log.d("Date", "" + mDate);
+                matchId+=position;
             }
 
             home = matchData.getString(Constants.HOME_TEAM);

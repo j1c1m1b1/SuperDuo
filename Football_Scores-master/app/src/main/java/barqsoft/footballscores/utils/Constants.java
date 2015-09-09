@@ -15,6 +15,7 @@ public class Constants
     public static final String SELECTED_MATCH = "Selected_match";
     public static final String PAGER_FRAGMENT_KEY = "pagerFragment";
     public static final int INVALID_VALUE = -1;
+    public static final int TODAY_FRAGMENT = 2;
 
     //Pager Fragment
     public static final String FRAGMENT_DATE = "fragment_date_arg";

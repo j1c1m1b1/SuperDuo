@@ -1,12 +1,12 @@
 package barqsoft.footballscores.activities;
 
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.design.widget.CoordinatorLayout;
 import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
-import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
 
@@ -24,7 +24,7 @@ public class MainActivity extends AppCompatActivity
 {
     public static int selectedMatchId;
 
-    public static int currentFragment = 2;
+    public static int currentFragment = Constants.TODAY_FRAGMENT;
     private PagerFragment pagerFragment;
     private Snackbar snackbar;
 
@@ -44,15 +44,6 @@ public class MainActivity extends AppCompatActivity
         }
         FootballScoresSyncAdapter.initializeSyncAdapter(this);
 
-        Intent intent = getIntent();
-        if(intent != null && intent.hasExtra(Constants.SELECTED_MATCH))
-        {
-            selectedMatchId = intent.getIntExtra(Constants.SELECTED_MATCH, Constants.INVALID_VALUE);
-            Log.d(MainActivity.class.getSimpleName(), "" + selectedMatchId);
-
-            pagerFragment.showDetail(selectedMatchId, 2);
-        }
-
         snackbar = Snackbar.make(rootLayout, R.string.server_down,
                 Snackbar.LENGTH_INDEFINITE);
         snackbar.setAction(R.string.retry, new View.OnClickListener() {
@@ -67,6 +58,19 @@ public class MainActivity extends AppCompatActivity
     protected void onResume() {
         super.onResume();
         BusProvider.getInstance().register(this);
+        Intent intent = getIntent();
+        if(intent != null && intent.hasExtra(Constants.SELECTED_MATCH))
+        {
+            selectedMatchId = intent.getIntExtra(Constants.SELECTED_MATCH, Constants.INVALID_VALUE);
+            SharedPreferences prefs = getSharedPreferences(getString(R.string.app_name),
+                    MODE_PRIVATE);
+
+            SharedPreferences.Editor editor = prefs.edit();
+            editor.putInt(Constants.SELECTED_MATCH, selectedMatchId);
+            editor.apply();
+
+            pagerFragment.showDetail();
+        }
     }
 
     @Override
@@ -121,7 +125,6 @@ public class MainActivity extends AppCompatActivity
         snackbar.setText(event.getResId());
         if(!snackbar.isShown())
         {
-            Log.d(MainActivity.class.getSimpleName(), "showSnackBar");
             snackbar.show();
         }
     }
