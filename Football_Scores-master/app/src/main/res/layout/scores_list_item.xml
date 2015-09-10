@@ -93,7 +93,6 @@
             android:id="@+id/layoutDetail"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:visibility="gone"
             app:columnCount="2">
 
             <android.support.v7.widget.Space

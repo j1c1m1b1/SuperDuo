@@ -2,12 +2,14 @@ package barqsoft.footballscores.adapters;
 
 import android.content.Context;
 import android.database.Cursor;
+import android.os.Build;
 import android.support.annotation.DrawableRes;
 import android.support.v7.widget.GridLayout;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.ViewTreeObserver;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
@@ -129,6 +131,8 @@ public class ScoresAdapter extends RecyclerView.Adapter<ScoresAdapter.ViewHolder
         private TextView tvMatchDay;
         private Button btnShare;
 
+        private int layoutHeight;
+
         private String shareText;
         private OnShareButtonClickListener listener;
 
@@ -142,6 +146,27 @@ public class ScoresAdapter extends RecyclerView.Adapter<ScoresAdapter.ViewHolder
             ivHomeCrest = (ImageView) view.findViewById(R.id.home_crest);
             ivAwayCrest = (ImageView) view.findViewById(R.id.away_crest);
             layoutDetail = (GridLayout) view.findViewById(R.id.layoutDetail);
+            layoutDetail.getViewTreeObserver()
+                    .addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
+                        @Override
+                        public void onGlobalLayout() {
+                            layoutHeight = layoutDetail.getHeight();
+
+                            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN)
+                            {
+                                layoutDetail.getViewTreeObserver().removeOnGlobalLayoutListener(this);
+                            }
+                            else
+                            {
+                                //noinspection deprecation
+                                layoutDetail.getViewTreeObserver().removeGlobalOnLayoutListener(this);
+                            }
+                            layoutDetail.setVisibility(View.GONE);
+
+                        }
+                    });
+
+
             tvLeague = (TextView) view.findViewById(R.id.tvLeague);
             tvMatchDay = (TextView) view.findViewById(R.id.tvMatchDay);
             btnShare = (Button) view.findViewById(R.id.btnShare);
@@ -193,7 +218,7 @@ public class ScoresAdapter extends RecyclerView.Adapter<ScoresAdapter.ViewHolder
         {
             if(layoutDetail.getVisibility()== View.GONE)
             {
-                AnimationUtils.expand(layoutDetail);
+                AnimationUtils.expand(layoutDetail, layoutHeight);
             }
         }
 
@@ -202,7 +227,7 @@ public class ScoresAdapter extends RecyclerView.Adapter<ScoresAdapter.ViewHolder
         {
             if(layoutDetail.getVisibility()== View.GONE)
             {
-                AnimationUtils.expand(layoutDetail);
+                AnimationUtils.expand(layoutDetail, layoutHeight);
             }
             else
             {

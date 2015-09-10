@@ -10,9 +10,8 @@ import android.view.animation.Transformation;
  */
 public class AnimationUtils {
 
-    public static void expand(final View v) {
+    public static void expand(final View v, final int layoutHeight) {
         v.measure(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
-        final int targetHeight = v.getMeasuredHeight();
 
         v.getLayoutParams().height = 1;
         v.setVisibility(View.VISIBLE);
@@ -23,7 +22,7 @@ public class AnimationUtils {
             protected void applyTransformation(float interpolatedTime, Transformation t) {
                 v.getLayoutParams().height = interpolatedTime == 1
                         ? ViewGroup.LayoutParams.WRAP_CONTENT
-                        : (int)(targetHeight * interpolatedTime);
+                        : (int)(layoutHeight * interpolatedTime);
                 v.requestLayout();
             }
 
@@ -34,8 +33,8 @@ public class AnimationUtils {
         };
 
         // 1dp/ms
-        a.setDuration(((int)(targetHeight / v.getContext().getResources()
-                .getDisplayMetrics().density))* 10);
+        a.setDuration(((int)(layoutHeight / v.getContext().getResources()
+                .getDisplayMetrics().density))* 4);
         v.startAnimation(a);
     }
 
